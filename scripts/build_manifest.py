@@ -1,104 +1,154 @@
-import os, json, math, requests, time
+#!/usr/bin/env python3
+"""
+Build manifest.json from Google Drive folder
+Used by GitHub Actions to generate a static manifest for fast gallery loading
+"""
+
+import os
+import sys
+import json
 from datetime import datetime
+from urllib.parse import urlparse
+import urllib.request
+import urllib.error
 
-API_KEY = os.environ.get("GOOGLE_API_KEY")
-FOLDER_ID = os.environ.get("GOOGLE_DRIVE_FOLDER_ID")
 
-def month_to_season(m):
-    if m in [12,1,2]: return "Winter"
-    if m in [3,4,5]: return "Spring"
-    if m in [6,7,8]: return "Summer"
-    if m in [9,10,11]: return "Fall"
-    return ""
+def get_google_drive_files(folder_id: str, api_key: str) -> list:
+    """
+    Query Google Drive API v3 to list image files in folder.
+    Returns list of file metadata.
+    """
+    image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
+    
+    # Build API query
+    query = f"'{folder_id}' in parents and trashed=false"
+    fields = 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)'
+    
+    url = (
+        f"https://www.googleapis.com/drive/v3/files?"
+        f"q={urllib.parse.quote(query)}&"
+        f"fields={urllib.parse.quote(fields)}&"
+        f"key={api_key}&"
+        f"pageSize=1000"
+    )
+    
+    try:
+        print(f"[API] Querying Google Drive folder: {folder_id}")
+        with urllib.request.urlopen(url) as response:
+            data = json.loads(response.read().decode())
+        
+        # Filter for image files
+        files = data.get('files', [])
+        image_files = [
+            f for f in files
+            if f['name'].split('.')[-1].lower() in image_extensions
+        ]
+        
+        print(f"[API] Found {len(image_files)} image files")
+        return image_files
+    
+    except urllib.error.URLError as e:
+        print(f"[API Error] {e.reason}", file=sys.stderr)
+        sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"[API Error] Invalid JSON response: {e}", file=sys.stderr)
+        sys.exit(1)
 
-def infer_difficulty(tags):
-    t = set([x.lower() for x in tags])
-    hard = ['night','milky way','stars','macro','macro photography','action','sports','long exposure','light trails','underwater']
-    moderate = ['low light','wildlife','telephoto','waterfall','sunset','sunrise']
-    if any(k in t for k in hard): return 'hard'
-    if any(k in t for k in moderate): return 'moderate'
-    return 'easy'
 
-def list_drive_files():
-    base = "https://www.googleapis.com/drive/v3/files"
-    q = f"'{FOLDER_ID}' in parents and trashed=false and (mimeType contains 'image/')"
-    params = {
-        "q": q,
-        "fields": "files(id,name,mimeType,thumbnailLink,webViewLink,webContentLink,modifiedTime,createdTime,md5Checksum),nextPageToken",
-        "pageSize": 1000,
-        "key": API_KEY
+def extract_season_from_date(date_str: str) -> str:
+    """Derive season from ISO date string."""
+    try:
+        date_obj = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        month = date_obj.month
+        if 2 <= month <= 4:
+            return 'Spring'
+        elif 5 <= month <= 7:
+            return 'Summer'
+        elif 8 <= month <= 10:
+            return 'Fall'
+        else:
+            return 'Winter'
+    except (ValueError, AttributeError):
+        return 'Unknown'
+
+
+def extract_year_from_date(date_str: str) -> int:
+    """Extract year from ISO date string."""
+    try:
+        date_obj = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        return date_obj.year
+    except (ValueError, AttributeError):
+        return datetime.now().year
+
+
+def build_manifest_entry(file_metadata: dict) -> dict:
+    """
+    Build a manifest entry from Drive file metadata.
+    Performs minimal processing (no heavy ML here).
+    """
+    file_id = file_metadata['id']
+    name = file_metadata['name']
+    
+    # Remove file extension from name
+    name_without_ext = '.'.join(name.split('.')[:-1])
+    
+    # Derive season and year from createdTime
+    created_time = file_metadata.get('createdTime', '')
+    season = extract_season_from_date(created_time)
+    year = extract_year_from_date(created_time)
+    
+    return {
+        'id': file_id,
+        'name': name_without_ext,
+        'src': f'https://lh3.googleusercontent.com/d/{file_id}=w800',
+        'view': file_metadata.get('webViewLink', ''),
+        'createdTime': created_time,
+        'modifiedTime': file_metadata.get('modifiedTime', ''),
+        'mimeType': file_metadata.get('mimeType', ''),
+        'season': season,
+        'year': year,
+        'tags': [],  # ML tagging done client-side
+        'difficulty': 'Medium',  # Default, refined client-side
+        'color': 'Neutral',  # Default, refined client-side
     }
-    out = []
-    token = None
-    while True:
-        if token: params["pageToken"] = token
-        r = requests.get(base, params=params)
-        r.raise_for_status()
-        data = r.json()
-        out.extend(data.get("files", []))
-        token = data.get("nextPageToken")
-        if not token: break
-    return out
 
-# Cheap tagging using a public wordlist + filename hints (keeps action fast & free)
-HINTS = {
-    "night": ["night","astro","stars","milkyway","milky_way","aurora"],
-    "macro": ["macro","closeup","close-up"],
-    "waterfall": ["falls","waterfall"],
-    "wildlife": ["eagle","bear","deer","fox","wolf","bird","owl"],
-    "sports": ["surf","mtb","bmx","soccer","basketball","football","hockey","ski","snowboard","skate"],
-    "sunset": ["sunset","goldenhour","golden-hour"],
-    "sunrise": ["sunrise"],
-    "underwater": ["underwater","scuba","diving","snorkel"],
-    "long exposure": ["longexposure","long-exposure","lighttrails","light-trails"]
-}
 
-def tags_from_name(name):
-    n = name.lower()
-    tags = []
-    for tag, keys in HINTS.items():
-        if any(k in n for k in keys):
-            tags.append(tag)
-    return tags
+def main():
+    """Main entry point."""
+    # Read from environment (set by GitHub Actions secrets)
+    api_key = os.getenv('GOOGLE_API_KEY')
+    folder_id = os.getenv('GOOGLE_DRIVE_FOLDER_ID')
+    
+    if not api_key or not folder_id:
+        print(
+            "[Error] Missing GOOGLE_API_KEY or GOOGLE_DRIVE_FOLDER_ID "
+            "environment variables",
+            file=sys.stderr
+        )
+        sys.exit(1)
+    
+    print("[Build] Starting manifest generation...")
+    
+    # Fetch files from Google Drive
+    files = get_google_drive_files(folder_id, api_key)
+    
+    # Build manifest entries
+    manifest = [build_manifest_entry(f) for f in files]
+    
+    # Sort by year (newest first) then by name
+    manifest.sort(key=lambda x: (-x['year'], x['name']))
+    
+    # Write to public/manifest.json
+    output_path = 'public/manifest.json'
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+    
+    print(f"[Build] Manifest written to {output_path}")
+    print(f"[Build] Total images: {len(manifest)}")
+    print("[Build] Success!")
 
-def build_manifest():
-    files = list_drive_files()
-    items = []
-    for f in files:
-        src = f.get("webContentLink")
-        if src:
-            src += f"&key={API_KEY}"
-        url = f.get("thumbnailLink") or src
-        # date → season/year (Drive created/modified time)
-        dt = f.get("createdTime") or f.get("modifiedTime")
-        year = season = ""
-        if dt:
-            d = datetime.fromisoformat(dt.replace("Z","+00:00"))
-            year = str(d.year)
-            season = month_to_season(d.month)
-        # ultra-fast file-name-based tags (browser will refine with MobileNet if enabled)
-        tags = tags_from_name(f.get("name",""))
-        items.append({
-            "id": f.get("id"),
-            "name": f.get("name"),
-            "src": src or url,
-            "view": f.get("webViewLink"),
-            "tags": tags,
-            "season": season,
-            "year": year,
-            "difficulty": infer_difficulty(tags),
-            "orientation": "",  # client fills on render
-            "color": "",
-            "camera": "",
-            "lens": "",
-            "width": 0,
-            "height": 0
-        })
-    return items
 
-if __name__ == "__main__":
-    m = build_manifest()
-    os.makedirs("public", exist_ok=True)
-    with open("public/manifest.json","w") as f:
-        json.dump(m, f)
-    print(f"Wrote {len(m)} items to public/manifest.json")
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "example-file-id-1",
+    "name": "Mountain Sunset",
+    "src": "https://lh3.googleusercontent.com/d/example-file-id-1=w800",
+    "view": "https://drive.google.com/file/d/example-file-id-1",
+    "createdTime": "2023-10-15T14:30:00Z",
+    "modifiedTime": "2023-10-15T14:30:00Z",
+    "mimeType": "image/jpeg",
+    "season": "Fall",
+    "year": 2023,
+    "tags": [],
+    "difficulty": "Medium",
+    "color": "Neutral"
+  },
+  {
+    "id": "example-file-id-2",
+    "name": "Spring Flowers",
+    "src": "https://lh3.googleusercontent.com/d/example-file-id-2=w800",
+    "view": "https://drive.google.com/file/d/example-file-id-2",
+    "createdTime": "2023-04-20T09:15:00Z",
+    "modifiedTime": "2023-04-20T09:15:00Z",
+    "mimeType": "image/jpeg",
+    "season": "Spring",
+    "year": 2023,
+    "tags": [],
+    "difficulty": "Medium",
+    "color": "Neutral"
+  }
+]

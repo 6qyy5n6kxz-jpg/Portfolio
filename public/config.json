@@ -1,8 +1,7 @@
 {
+  "title": "My Photo Gallery",
   "GOOGLE_DRIVE_FOLDER_ID": "1KW1N-9qTx4pqpvbOgYj1lx9czhrM6zst",
   "GOOGLE_API_KEY": "AIzaSyDrwz9jce6hWcHV2cwAaOGSvla6QSG7XNA",
-  "SITE_TITLE": "My Image Portfolio",
-  "ITEMS_PER_PAGE": 60,
-  "ENABLE_CLIENT_AI_TAGGING": true,
-  "ENABLE_NIGHTLY_ACTION_MANIFEST": true
+  "ITEMS_PER_PAGE": 20,
+  "enableMLTagging": true
 }
