@@ -28,6 +28,9 @@ const COLOR_SWATCHES = {
     Neutral: '#95A5A6'
 };
 const COLOR_ORDER = Object.keys(COLOR_SWATCHES);
+let baseListenersAttached = false;
+let taggingInProgress = false;
+let exifEnrichmentPromise = null;
 
 // ==== INITIALIZATION ====
 async function init() {
@@ -35,19 +38,29 @@ async function init() {
         showLoading(true);
         config = await loadConfig();
         document.getElementById('galleryTitle').textContent = config.title || 'Photo Gallery';
-        let manifest = await loadManifestWithCache();
+        const manifest = await loadManifestWithCache();
         allItems = await processImageMetadata(manifest);
-        if (config.enableMLTagging !== false) {
-            await initTensorFlow();
-        }
-        if (model) {
-            allItems = await tagImagesWithAI(allItems);
-        }
         filteredItems = [...allItems];
         buildFilters();
         renderGallery();
         attachEventListeners();
         showLoading(false);
+        exifEnrichmentPromise = enrichItemsWithEXIF();
+        if (config.enableMLTagging !== false) {
+            initTensorFlow()
+                .then(async () => {
+                    if (!model) return;
+                    if (exifEnrichmentPromise) {
+                        try {
+                            await exifEnrichmentPromise;
+                        } catch (error) {
+                            console.warn('[EXIF] Enrichment before AI tagging failed:', error.message);
+                        }
+                    }
+                    runBackgroundTagging();
+                })
+                .catch(error => console.error('[TensorFlow]', error));
+        }
     } catch (error) {
         console.error('[Gallery]', error);
         showError(`Failed to load gallery: ${error.message}`);
@@ -198,24 +211,53 @@ async function fetchImagesFromDrive() {
 
 // ==== IMAGE METADATA PROCESSING ====
 async function processImageMetadata(manifest) {
-    return Promise.all(manifest.map(async (item) => {
-        const exifData = await extractEXIF(item.src);
-        const { season, year } = deriveSeasonAndYear(exifData, item);
+    return manifest.map((item) => {
+        const { season, year } = deriveSeasonAndYear({}, item);
         return {
             ...item,
             tags: Array.isArray(item.tags) ? [...item.tags] : [],
             season,
             year,
             difficulty: normalizeDifficultyInput(item.difficulty),
-            orientation: exifData.orientation || 'Landscape',
+            orientation: item.orientation || 'Landscape',
             color: item.color || 'Neutral',
-            camera: exifData.camera || 'Unknown',
-            lens: exifData.lens || 'Unknown',
-            width: exifData.width || 0,
-            height: exifData.height || 0,
-            dateTime: exifData.dateTime || null
+            camera: item.camera || 'Unknown',
+            lens: item.lens || 'Unknown',
+            width: item.width || 0,
+            height: item.height || 0,
+            dateTime: item.dateTime || null
         };
-    }));
+    });
+}
+
+async function enrichItemsWithEXIF() {
+    if (!Array.isArray(allItems) || allItems.length === 0) return;
+    console.log('[EXIF] Enriching images with metadata...');
+    const updatedItems = [];
+    for (const item of allItems) {
+        try {
+            const exifData = await extractEXIF(item.src);
+            const { season, year } = deriveSeasonAndYear(exifData, item);
+            updatedItems.push({
+                ...item,
+                season,
+                year,
+                orientation: exifData.orientation || item.orientation,
+                camera: exifData.camera || item.camera,
+                lens: exifData.lens || item.lens,
+                width: exifData.width || item.width,
+                height: exifData.height || item.height,
+                dateTime: exifData.dateTime || item.dateTime
+            });
+        } catch (error) {
+            console.warn(`[EXIF] ${item.name || item.id}:`, error.message);
+            updatedItems.push(item);
+        }
+    }
+    allItems = updatedItems;
+    buildFilters({ preserveActive: true });
+    applyFilters({ preservePage: true });
+    console.log('[EXIF] Metadata enrichment complete');
 }
 
 async function extractEXIF(imageSrc) {
@@ -280,6 +322,23 @@ async function initTensorFlow() {
     } catch (error) {
         console.error('[TensorFlow]', error);
         model = null;
+    }
+}
+
+async function runBackgroundTagging() {
+    if (taggingInProgress) return;
+    taggingInProgress = true;
+    try {
+        console.log(`[AI] Enhancing metadata for ${allItems.length} images...`);
+        const taggedItems = await tagImagesWithAI(allItems);
+        allItems = taggedItems;
+        buildFilters({ preserveActive: true });
+        applyFilters({ preservePage: true });
+        console.log('[AI] Tagging complete');
+    } catch (error) {
+        console.warn('[AI] Background tagging failed:', error.message);
+    } finally {
+        taggingInProgress = false;
     }
 }
 
@@ -491,14 +550,30 @@ function sortColorsForDisplay(colors) {
 }
 
 // ==== FILTERS & SEARCH ====
-function buildFilters() {
+function buildFilters(options = {}) {
+    const { preserveActive = false } = options;
+    const previousFilters = preserveActive ? getActiveFilters() : null;
+
     renderFilterChips('seasonFilters', SEASONS);
-    const difficulties = [...new Set(allItems.map(i => i.difficulty))].sort((a, b) => a - b);
-    renderFilterChips('difficultyFilters', difficulties);
+    const difficultyValues = [...new Set(allItems.map(i => i.difficulty))]
+        .filter(value => value !== undefined && value !== null)
+        .sort((a, b) => a - b)
+        .map(String);
+    renderFilterChips('difficultyFilters', difficultyValues);
     const orientations = [...new Set(allItems.map(i => i.orientation))].sort();
     renderFilterChips('orientationFilters', orientations);
     const colors = sortColorsForDisplay([...new Set(allItems.map(i => i.color || 'Neutral'))]);
     renderFilterChips('colorFilters', colors);
+
+    bindFilterChipEvents();
+
+    if (previousFilters) {
+        restoreActiveFilterChips(previousFilters);
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.value = previousFilters.searchRaw || '';
+        }
+    }
 }
 
 function renderFilterChips(containerId, values) {
@@ -511,13 +586,43 @@ function renderFilterChips(containerId, values) {
     }).join('');
 }
 
+function bindFilterChipEvents() {
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            chip.classList.toggle('active');
+            applyFilters();
+        });
+    });
+}
+
+function restoreActiveFilterChips(filters) {
+    const mapping = [
+        { id: 'seasonFilters', values: filters.season },
+        { id: 'difficultyFilters', values: filters.difficulty },
+        { id: 'orientationFilters', values: filters.orientation },
+        { id: 'colorFilters', values: filters.color }
+    ];
+    mapping.forEach(({ id, values }) => {
+        const container = document.getElementById(id);
+        if (!container || !Array.isArray(values)) return;
+        const chips = Array.from(container.querySelectorAll('.filter-chip'));
+        values.forEach(value => {
+            const chip = chips.find(c => c.dataset.filter === value);
+            if (chip) chip.classList.add('active');
+        });
+    });
+}
+
 function getActiveFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const searchValue = searchInput ? searchInput.value : '';
     const filters = {
         season: [],
         difficulty: [],
         orientation: [],
         color: [],
-        search: document.getElementById('searchInput').value.toLowerCase()
+        search: searchValue.toLowerCase(),
+        searchRaw: searchValue
     };
     document.querySelectorAll('.filter-chip.active').forEach(chip => {
         const value = chip.dataset.filter;
@@ -530,7 +635,9 @@ function getActiveFilters() {
     return filters;
 }
 
-function applyFilters() {
+function applyFilters(options = {}) {
+    const { preservePage = false } = options;
+    const previousPage = currentPage;
     const filters = getActiveFilters();
     filteredItems = allItems.filter(item => {
         if (filters.season.length > 0 && !filters.season.includes(item.season)) return false;
@@ -543,7 +650,13 @@ function applyFilters() {
         }
         return true;
     });
-    currentPage = 1;
+    if (preservePage) {
+        const itemsPerPage = config.ITEMS_PER_PAGE || 20;
+        const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+        currentPage = Math.min(previousPage, totalPages);
+    } else {
+        currentPage = 1;
+    }
     renderGallery();
 }
 
@@ -620,13 +733,12 @@ function closeModal() {
 
 // ==== EVENT LISTENERS ====
 function attachEventListeners() {
-    document.getElementById('searchInput').addEventListener('input', applyFilters);
-    document.querySelectorAll('.filter-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-            chip.classList.toggle('active');
-            applyFilters();
-        });
-    });
+    if (baseListenersAttached) return;
+    baseListenersAttached = true;
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => applyFilters());
+    }
     document.getElementById('clearFiltersBtn').addEventListener('click', () => {
         document.querySelectorAll('.filter-chip.active').forEach(chip => {
             chip.classList.remove('active');
