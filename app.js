@@ -14,6 +14,20 @@ let model = null;
 const CACHE_KEY = 'photo-gallery-manifest';
 const CACHE_EXPIRY_HOURS = 24;
 const SEASONS = ['Spring', 'Summer', 'Fall', 'Winter'];
+const COLOR_SWATCHES = {
+    Red: '#D64545',
+    Orange: '#F2994A',
+    Yellow: '#F2C94C',
+    Green: '#27AE60',
+    Blue: '#2F80ED',
+    Purple: '#9B51E0',
+    Brown: '#8D6E63',
+    Black: '#333333',
+    White: '#FFFFFF',
+    Gray: '#BDBDBD',
+    Neutral: '#95A5A6'
+};
+const COLOR_ORDER = Object.keys(COLOR_SWATCHES);
 
 // ==== INITIALIZATION ====
 async function init() {
@@ -29,6 +43,7 @@ async function init() {
         if (model) {
             allItems = await tagImagesWithAI(allItems);
         }
+        filteredItems = [...allItems];
         buildFilters();
         renderGallery();
         attachEventListeners();
@@ -188,10 +203,10 @@ async function processImageMetadata(manifest) {
         const { season, year } = deriveSeasonAndYear(exifData, item);
         return {
             ...item,
-            tags: item.tags || [],
+            tags: Array.isArray(item.tags) ? [...item.tags] : [],
             season,
             year,
-            difficulty: item.difficulty || 'Medium',
+            difficulty: normalizeDifficultyInput(item.difficulty),
             orientation: exifData.orientation || 'Landscape',
             color: item.color || 'Neutral',
             camera: exifData.camera || 'Unknown',
@@ -272,73 +287,228 @@ async function tagImagesWithAI(items) {
     if (!model) return items;
     return Promise.all(items.map(async (item) => {
         try {
-            const predictions = await getImagePredictions(item.src);
-            const tags = predictions.slice(0, 3).map(p => p.className);
-            const color = classifyColor();
-            const difficulty = computeDifficulty(tags, predictions);
+            const img = await loadImageElement(item.src);
+            const predictions = await model.classify(img);
+            const tags = buildTagList(item, predictions);
+            const color = classifyColorFromImage(img);
+            const difficulty = computeDifficultyScore(predictions);
             return {
                 ...item,
-                tags: [...(item.tags || []), ...tags],
+                tags,
                 color,
                 difficulty
             };
         } catch (error) {
             console.warn(`[AI] ${item.name}:`, error.message);
-            return item;
+            return {
+                ...item,
+                tags: buildTagList(item, []),
+                difficulty: normalizeDifficultyInput(item.difficulty),
+                color: item.color || 'Neutral'
+            };
         }
     }));
 }
 
-async function getImagePredictions(imageSrc) {
+async function loadImageElement(imageSrc) {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        img.onload = async () => {
-            try {
-                const predictions = await model.classify(img);
-                resolve(predictions);
-            } catch (error) {
-                reject(error);
-            }
-        };
+        img.onload = () => resolve(img);
         img.onerror = () => reject(new Error('Image load failed'));
         img.src = imageSrc;
     });
 }
 
-function classifyColor() {
-    const colors = ['Warm', 'Cool', 'Neutral'];
-    return colors[Math.floor(Math.random() * colors.length)];
+function buildTagList(item, predictions = []) {
+    const uniqueTags = new Map();
+    const addTag = (tag) => {
+        if (!tag) return;
+        const formatted = formatTag(tag);
+        const key = formatted.toLowerCase();
+        if (!uniqueTags.has(key)) uniqueTags.set(key, formatted);
+    };
+
+    addTag(item.season && item.season !== 'Unknown' ? item.season : null);
+    if (Array.isArray(item.tags)) {
+        item.tags.forEach(addTag);
+    }
+
+    const sortedPredictions = Array.isArray(predictions)
+        ? [...predictions].sort((a, b) => (b.probability || 0) - (a.probability || 0))
+        : [];
+
+    sortedPredictions
+        .filter(prediction => (prediction.probability || 0) >= 0.2)
+        .forEach(prediction => addTag(prediction.className));
+
+    for (const prediction of sortedPredictions) {
+        if (uniqueTags.size >= 5) break;
+        addTag(prediction.className);
+    }
+
+    if (uniqueTags.size < 3) addTag(item.orientation);
+    if (uniqueTags.size < 3 && item.camera) {
+        const cameraTag = item.camera.split(' ')[0];
+        addTag(cameraTag);
+    }
+    if (uniqueTags.size < 3 && item.color) addTag(item.color);
+    if (uniqueTags.size < 3) addTag('Photography');
+
+    const tags = Array.from(uniqueTags.values());
+    return tags.slice(0, Math.min(5, Math.max(3, tags.length)));
 }
 
-function computeDifficulty(tags, predictions) {
-    const hardTags = ['person', 'dog', 'cat', 'car', 'action'];
-    const hasHardTag = tags.some(tag => 
-        hardTags.some(hard => tag.toLowerCase().includes(hard.toLowerCase()))
+function formatTag(tag) {
+    if (!tag) return '';
+    return tag
+        .toString()
+        .trim()
+        .split(/[\s_/,-]+/)
+        .filter(Boolean)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+function classifyColorFromImage(img) {
+    try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) return 'Neutral';
+        const sampleWidth = 64;
+        const ratio = img.naturalWidth ? img.naturalHeight / img.naturalWidth : 1;
+        canvas.width = sampleWidth;
+        canvas.height = Math.max(1, Math.round(sampleWidth * ratio));
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < imageData.length; i += 16) {
+            r += imageData[i];
+            g += imageData[i + 1];
+            b += imageData[i + 2];
+            count++;
+        }
+        if (count === 0) return 'Neutral';
+        const avgR = r / count;
+        const avgG = g / count;
+        const avgB = b / count;
+        return categorizeColor(avgR, avgG, avgB);
+    } catch (error) {
+        console.warn('[Color]', error.message);
+        return 'Neutral';
+    }
+}
+
+function categorizeColor(r, g, b) {
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const luminance = (0.299 * r) + (0.587 * g) + (0.114 * b);
+    const saturation = max === 0 ? 0 : (max - min) / max;
+
+    if (luminance < 40) return 'Black';
+    if (luminance > 220 && saturation < 0.2) return 'White';
+    if (saturation < 0.12) return 'Gray';
+
+    const hue = computeHue(r, g, b);
+
+    if (luminance < 90 && hue >= 15 && hue <= 45) return 'Brown';
+    if (hue < 15 || hue >= 345) return 'Red';
+    if (hue < 45) return 'Orange';
+    if (hue < 70) return 'Yellow';
+    if (hue < 170) return 'Green';
+    if (hue < 250) return 'Blue';
+    if (hue < 310) return 'Purple';
+    return 'Red';
+}
+
+function computeHue(r, g, b) {
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    if (max === min) return 0;
+    let hue;
+    if (max === r) {
+        hue = (g - b) / (max - min);
+    } else if (max === g) {
+        hue = 2 + (b - r) / (max - min);
+    } else {
+        hue = 4 + (r - g) / (max - min);
+    }
+    hue *= 60;
+    if (hue < 0) hue += 360;
+    return hue;
+}
+
+function computeDifficultyScore(predictions) {
+    if (!Array.isArray(predictions) || predictions.length === 0) return 3;
+    const topConfidence = predictions[0]?.probability || 0;
+    let score;
+    if (topConfidence >= 0.8) score = 1;
+    else if (topConfidence >= 0.6) score = 2;
+    else if (topConfidence >= 0.4) score = 3;
+    else if (topConfidence >= 0.25) score = 4;
+    else score = 5;
+
+    const complexSubjects = [
+        'person', 'people', 'portrait', 'crowd', 'dog', 'cat', 'bird',
+        'sports', 'action', 'vehicle', 'car', 'night', 'city', 'architecture',
+        'concert', 'wave', 'water', 'animal'
+    ];
+    const hasComplexSubject = predictions.some(prediction =>
+        complexSubjects.some(subject =>
+            prediction.className?.toLowerCase().includes(subject)
+        )
     );
-    if (hasHardTag) return 'Hard';
-    const confidence = predictions[0]?.probability || 0;
-    return confidence < 0.5 ? 'Medium' : 'Easy';
+
+    if (hasComplexSubject) score += 1;
+
+    const uncertainPredictions = predictions.filter(prediction => (prediction.probability || 0) < 0.2).length;
+    if (uncertainPredictions > predictions.length / 2) score += 1;
+
+    return clamp(score, 1, 5);
+}
+
+function normalizeDifficultyInput(value) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) {
+        return clamp(Math.round(numeric), 1, 5);
+    }
+    return 3;
+}
+
+function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+}
+
+function sortColorsForDisplay(colors) {
+    return colors.sort((a, b) => {
+        const indexA = COLOR_ORDER.indexOf(a);
+        const indexB = COLOR_ORDER.indexOf(b);
+        if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    });
 }
 
 // ==== FILTERS & SEARCH ====
 function buildFilters() {
     renderFilterChips('seasonFilters', SEASONS);
-    const difficulties = [...new Set(allItems.map(i => i.difficulty))].sort();
+    const difficulties = [...new Set(allItems.map(i => i.difficulty))].sort((a, b) => a - b);
     renderFilterChips('difficultyFilters', difficulties);
     const orientations = [...new Set(allItems.map(i => i.orientation))].sort();
     renderFilterChips('orientationFilters', orientations);
-    const years = [...new Set(allItems.map(i => i.year))].sort((a, b) => b - a);
-    renderFilterChips('yearFilters', years.map(y => y.toString()));
-    const colors = [...new Set(allItems.map(i => i.color))].sort();
+    const colors = sortColorsForDisplay([...new Set(allItems.map(i => i.color || 'Neutral'))]);
     renderFilterChips('colorFilters', colors);
 }
 
 function renderFilterChips(containerId, values) {
     const container = document.getElementById(containerId);
-    container.innerHTML = values.map(value => 
-        `<div class="filter-chip" data-filter="${value}">${value}</div>`
-    ).join('');
+    container.innerHTML = values.map(value => {
+        const isColor = containerId === 'colorFilters';
+        const colorStyle = isColor ? ` style="--chip-color:${COLOR_SWATCHES[value] || '#888888'}"` : '';
+        const classes = `filter-chip${isColor ? ' color-chip' : ''}`;
+        return `<div class="${classes}" data-filter="${value}"${colorStyle}>${value}</div>`;
+    }).join('');
 }
 
 function getActiveFilters() {
@@ -346,7 +516,6 @@ function getActiveFilters() {
         season: [],
         difficulty: [],
         orientation: [],
-        year: [],
         color: [],
         search: document.getElementById('searchInput').value.toLowerCase()
     };
@@ -356,7 +525,6 @@ function getActiveFilters() {
         if (parent?.id === 'seasonFilters') filters.season.push(value);
         else if (parent?.id === 'difficultyFilters') filters.difficulty.push(value);
         else if (parent?.id === 'orientationFilters') filters.orientation.push(value);
-        else if (parent?.id === 'yearFilters') filters.year.push(value);
         else if (parent?.id === 'colorFilters') filters.color.push(value);
     });
     return filters;
@@ -366,9 +534,8 @@ function applyFilters() {
     const filters = getActiveFilters();
     filteredItems = allItems.filter(item => {
         if (filters.season.length > 0 && !filters.season.includes(item.season)) return false;
-        if (filters.difficulty.length > 0 && !filters.difficulty.includes(item.difficulty)) return false;
+        if (filters.difficulty.length > 0 && !filters.difficulty.includes(item.difficulty.toString())) return false;
         if (filters.orientation.length > 0 && !filters.orientation.includes(item.orientation)) return false;
-        if (filters.year.length > 0 && !filters.year.includes(item.year.toString())) return false;
         if (filters.color.length > 0 && !filters.color.includes(item.color)) return false;
         if (filters.search) {
             const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens}`.toLowerCase();
@@ -401,7 +568,7 @@ function renderGallery() {
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23333%22 width=%22200%22 height=%22200%22/%3E%3C/svg%3E'">
             <div class="gallery-card-content">
                 <div class="gallery-card-title">${escapeHtml(item.name)}</div>
-                <div class="gallery-card-meta">${item.year} • ${item.season}</div>
+                <div class="gallery-card-meta">${item.season} • Difficulty ${item.difficulty}/5</div>
                 <div class="gallery-card-tags">
                     ${item.tags.map((tag, idx) => 
                         `<span class="tag ${idx >= (item.tags.length - 3) ? 'ai-tag' : ''}">${escapeHtml(tag)}</span>`
@@ -418,11 +585,13 @@ function renderGallery() {
 
 function updatePagination() {
     const itemsPerPage = config.ITEMS_PER_PAGE || 20;
-    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-    document.getElementById('prevBtn').disabled = currentPage === 1;
-    document.getElementById('nextBtn').disabled = currentPage >= totalPages;
-    document.getElementById('pageInfo').textContent = 
-        `Page ${currentPage} of ${totalPages} (${filteredItems.length} images)`;
+    const totalItems = filteredItems.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+    document.getElementById('prevBtn').disabled = currentPage === 1 || totalItems === 0;
+    document.getElementById('nextBtn').disabled = currentPage >= totalPages || totalItems === 0;
+    document.getElementById('pageInfo').textContent = totalItems === 0
+        ? 'No images to display'
+        : `Page ${currentPage} of ${totalPages} (${totalItems} images)`;
 }
 
 // ==== MODAL / LIGHTBOX ====
@@ -436,7 +605,8 @@ function openModal(itemId) {
     img.alt = item.name;
     info.innerHTML = `
         <strong>${escapeHtml(item.name)}</strong><br>
-        ${item.year} • ${item.season} • ${item.orientation}<br>
+        ${item.season} • Difficulty ${item.difficulty}/5 • ${item.orientation}<br>
+        Color: ${item.color}${item.year ? ` • Year ${item.year}` : ''}<br>
         ${item.camera} ${item.lens}<br>
         ${item.tags.map(tag => `<span class="tag ai-tag">${escapeHtml(tag)}</span>`).join('')}
         <br><a href="${item.view}" target="_blank" rel="noopener">View in Drive →</a>
