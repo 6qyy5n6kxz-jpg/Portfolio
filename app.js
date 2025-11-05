@@ -113,7 +113,7 @@ async function fetchImagesFromDrive() {
     const allImages = [];
     
     // Recursive function to fetch images from folder and subfolders
-    async function fetchFromFolder(folderId, depth = 0) {
+    async function fetchFromFolder(folderId, depth = 0, folderName = 'root') {
         if (depth > 10) {
             console.warn('[Drive API] Max folder depth reached (10)');
             return;
@@ -128,6 +128,7 @@ async function fetchImagesFromDrive() {
         url.searchParams.set('pageSize', '1000');
         
         try {
+            console.log(`[Drive API] Fetching folder: ${folderName} (depth ${depth})`);
             const response = await fetch(url.toString());
             if (!response.ok) {
                 const errorData = await response.json();
@@ -135,6 +136,7 @@ async function fetchImagesFromDrive() {
             }
             const data = await response.json();
             const items = data.files || [];
+            console.log(`[Drive API] Found ${items.length} items in ${folderName}`);
             
             // Process each item
             for (const item of items) {
@@ -142,6 +144,7 @@ async function fetchImagesFromDrive() {
                 
                 // If it's an image, add it
                 if (imageExtensions.includes(ext)) {
+                    console.log(`[Drive API] Found image: ${item.name}`);
                     allImages.push({
                         id: item.id,
                         name: item.name.replace(/\.[^/.]+$/, ''),
@@ -153,11 +156,12 @@ async function fetchImagesFromDrive() {
                 }
                 // If it's a folder, recurse into it
                 else if (item.mimeType === 'application/vnd.google-apps.folder') {
-                    await fetchFromFolder(item.id, depth + 1);
+                    console.log(`[Drive API] Found subfolder: ${item.name}`);
+                    await fetchFromFolder(item.id, depth + 1, item.name);
                 }
             }
         } catch (error) {
-            console.error(`[Drive API] Error fetching folder ${folderId}:`, error);
+            console.error(`[Drive API] Error fetching folder ${folderName}:`, error);
             throw error;
         }
     }
