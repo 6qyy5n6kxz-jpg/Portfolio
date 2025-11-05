@@ -116,6 +116,25 @@ body {
     white-space: nowrap;
 }
 
+.filter-chip.color-chip {
+    position: relative;
+    padding-left: calc(var(--spacing-md) * 2 + 0.6rem);
+    border-color: var(--chip-color, var(--color-border));
+}
+
+.filter-chip.color-chip::before {
+    content: '';
+    position: absolute;
+    left: var(--spacing-sm);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    background: var(--chip-color, var(--color-accent));
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .filter-chip:hover {
     border-color: var(--color-accent);
     color: var(--color-accent);
@@ -125,6 +144,17 @@ body {
     background-color: var(--color-accent);
     color: var(--color-bg);
     border-color: var(--color-accent);
+}
+
+.filter-chip.color-chip:hover {
+    border-color: var(--chip-color, var(--color-accent));
+    color: var(--chip-color, var(--color-accent));
+}
+
+.filter-chip.color-chip.active {
+    background-color: var(--chip-color, var(--color-accent));
+    color: #fff;
+    border-color: var(--chip-color, var(--color-accent));
 }
 
 .clear-filters-btn {
