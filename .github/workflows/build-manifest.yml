@@ -40,8 +40,8 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           
-          # Check if manifest changed
-          if git diff --quiet public/manifest.json; then
+          status=$(git status --short public/manifest.json)
+          if [ -z "$status" ]; then
             echo "No changes to manifest"
           else
             git add public/manifest.json
