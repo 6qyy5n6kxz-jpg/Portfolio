@@ -110,32 +110,63 @@ async function fetchImagesFromDrive() {
         throw new Error('GOOGLE_DRIVE_FOLDER_ID and GOOGLE_API_KEY required in config.json');
     }
     const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-    const query = `'${config.GOOGLE_DRIVE_FOLDER_ID}' in parents and trashed=false`;
-    const fields = 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)';
-    const url = new URL('https://www.googleapis.com/drive/v3/files');
-    url.searchParams.set('q', query);
-    url.searchParams.set('fields', fields);
-    url.searchParams.set('key', config.GOOGLE_API_KEY);
-    url.searchParams.set('pageSize', '1000');
-    try {
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+    const allImages = [];
+    
+    // Recursive function to fetch images from folder and subfolders
+    async function fetchFromFolder(folderId, depth = 0) {
+        if (depth > 10) {
+            console.warn('[Drive API] Max folder depth reached (10)');
+            return;
         }
-        const data = await response.json();
-        const imageFiles = (data.files || []).filter(file => {
-            const ext = file.name.split('.').pop().toLowerCase();
-            return imageExtensions.includes(ext);
-        });
-        return imageFiles.map(file => ({
-            id: file.id,
-            name: file.name.replace(/\.[^/.]+$/, ''),
-            src: `https://lh3.googleusercontent.com/d/${file.id}=w800`,
-            view: file.webViewLink,
-            createdTime: file.createdTime,
-            modifiedTime: file.modifiedTime
-        }));
+        
+        const query = `'${folderId}' in parents and trashed=false`;
+        const fields = 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)';
+        const url = new URL('https://www.googleapis.com/drive/v3/files');
+        url.searchParams.set('q', query);
+        url.searchParams.set('fields', fields);
+        url.searchParams.set('key', config.GOOGLE_API_KEY);
+        url.searchParams.set('pageSize', '1000');
+        
+        try {
+            const response = await fetch(url.toString());
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            const items = data.files || [];
+            
+            // Process each item
+            for (const item of items) {
+                const ext = item.name.split('.').pop().toLowerCase();
+                
+                // If it's an image, add it
+                if (imageExtensions.includes(ext)) {
+                    allImages.push({
+                        id: item.id,
+                        name: item.name.replace(/\.[^/.]+$/, ''),
+                        src: `https://lh3.googleusercontent.com/d/${item.id}=w800`,
+                        view: item.webViewLink,
+                        createdTime: item.createdTime,
+                        modifiedTime: item.modifiedTime
+                    });
+                }
+                // If it's a folder, recurse into it
+                else if (item.mimeType === 'application/vnd.google-apps.folder') {
+                    await fetchFromFolder(item.id, depth + 1);
+                }
+            }
+        } catch (error) {
+            console.error(`[Drive API] Error fetching folder ${folderId}:`, error);
+            throw error;
+        }
+    }
+    
+    try {
+        console.log('[Drive API] Fetching images from folder (including subfolders)...');
+        await fetchFromFolder(config.GOOGLE_DRIVE_FOLDER_ID);
+        console.log(`[Drive API] Found ${allImages.length} images total`);
+        return allImages;
     } catch (error) {
         console.error('[Drive API]', error);
         throw new Error(`Google Drive API error: ${error.message}`);
