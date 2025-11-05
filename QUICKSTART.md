@@ -1,90 +1,84 @@
-# Quick Start Guide
+# Quick Start
 
-## Step 1: Get Your Google Drive Folder ID
+This walkthrough gets the manifest pipeline and static gallery live in minutes.
 
-1. Create a **new public folder** in Google Drive
-2. Open it and copy the URL: `https://drive.google.com/drive/folders/{FOLDER_ID}`
-3. Save the `FOLDER_ID`
+## 1. Prep Google Drive & API Key
 
-## Step 2: Create Google Cloud API Key
+1. Create a folder in Google Drive for your portfolio (subfolders allowed).
+2. Share it **Anyone with the link → Viewer**.
+3. In [Google Cloud Console](https://console.cloud.google.com/):
+   - Create a project.
+   - Enable the **Google Drive API**.
+   - Create an **API key** → Restrict to the Drive API (optionally restrict by IP ranges for GitHub Actions).
+4. Copy the folder ID (the string after `/folders/` in the Drive URL).
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project (name it anything)
-3. Search for "Google Drive API" and **Enable** it
-4. Go to **Credentials** → **Create Credentials** → **API Key**
-5. Copy your API key
-6. Click **Restrict key** and set:
-   - **API restrictions**: Google Drive API
-   - **HTTP referrers**: `*.github.io/*` (restrict to your GitHub Pages domain)
+## 2. Configure GitHub secrets
 
-## Step 3: Fill config.json
+Repository → **Settings → Secrets and variables → Actions → New repository secret**:
 
-Edit `public/config.json`:
+| Name | Value |
+|------|-------|
+| `GOOGLE_API_KEY` | Your API key |
+| `GOOGLE_DRIVE_FOLDER_ID` | The folder ID copied above |
+
+These secrets power the `scripts/build_manifest.py` workflow.
+
+## 3. Adjust UI config
+
+Update `public/config.json` with your preferred title and optional page size:
 
 ```json
 {
   "title": "My Photo Gallery",
-  "GOOGLE_DRIVE_FOLDER_ID": "paste-your-folder-id",
-  "GOOGLE_API_KEY": "paste-your-api-key",
-  "ITEMS_PER_PAGE": 20,
-  "enableMLTagging": true
+  "ITEMS_PER_PAGE": 30
 }
 ```
 
-## Step 4: Set Up GitHub Secrets (for auto-updating manifest)
+## 4. First manifest build
 
-In GitHub repository → **Settings** → **Secrets and variables** → **Actions secrets**:
+You can wait for the nightly schedule, or trigger it manually:
 
-- Add `GOOGLE_API_KEY` = your API key
-- Add `GOOGLE_DRIVE_FOLDER_ID` = your folder ID
-
-This enables the nightly workflow to auto-generate `public/manifest.json`.
-
-## Step 5: Deploy
-
-```bash
-git add .
-git commit -m "Initial photo gallery setup"
-git push origin main
+```
+gh workflow run "Build Photo Gallery Manifest"
 ```
 
-Then go to repository **Settings** → **Pages** → Deploy from `main` branch.
+or through the GitHub Actions UI. The workflow will download, analyse, and commit `public/manifest.json`.
 
-Your gallery will be live in a few minutes at: `https://your-username.github.io/my-portfolio`
+## 5. Deploy via GitHub Pages
 
-## Step 6: Add Images
+1. Push your changes to GitHub (`git add . && git commit && git push`).
+2. In the repo: **Settings → Pages → Build and deployment → Deploy from branch → main**.
+3. After the workflow commits the manifest, visit `https://<username>.github.io/<repo>/`.
 
-1. Upload photos to your Google Drive folder
-2. Make sure the folder is **public** (anyone with link)
-3. Either wait for nightly workflow to run, or manually trigger:
-   - Go to **Actions** → **Build Photo Gallery Manifest** → **Run workflow**
-4. Refresh your gallery page (Ctrl+Shift+R to clear cache)
+## 6. Add new images
 
-## Testing Locally
+1. Upload photos to the Drive folder (keeping subfolders if desired).
+2. Either wait for the scheduled build or trigger the workflow immediately.
+3. Once the manifest commit lands on `main`, refresh your site (hard refresh to bypass browser cache).
+
+## Local smoke test (optional)
 
 ```bash
-# Install a simple HTTP server
 python -m http.server 8000
-
-# Open http://localhost:8000 in browser
+# open http://localhost:8000 in a browser
 ```
 
-The gallery loads fine locally, but Google Drive API requests may need CORS headers adjusted.
+If you want to generate the manifest locally first:
+
+```bash
+pip install -r requirements.txt
+GOOGLE_API_KEY=... GOOGLE_DRIVE_FOLDER_ID=... python scripts/build_manifest.py
+```
+
+Set `SKIP_AI=1` for a faster dry run that reuses cached tags.
 
 ## Troubleshooting
 
-### "Failed to load gallery"
-- Check browser console (F12) for error messages
-- Ensure `public/config.json` has correct credentials
-- Verify Drive folder is public
+| Issue | Fix |
+|-------|-----|
+| Workflow fails with `Drive API error` | Confirm the folder is shared publicly, secrets are correct, and the API key is restricted to the Drive API only. |
+| `public/manifest.json` missing | Trigger the workflow manually; ensure there are no merge conflicts preventing the commit. |
+| Gallery shows “Failed to load gallery” | Make sure GitHub Pages is serving the latest `main` branch and that the manifest exists. |
+| TensorFlow install takes too long | Add pip caching to the workflow (`cache: 'pip'` in `actions/setup-python`) or run on a faster runner. |
 
-### Images not showing
-- Drive folder must be **public**
-- Try refreshing with Cmd+Shift+R (hard refresh)
-
-### ML tagging not working
-- Check HTTPS is enabled (GitHub Pages uses HTTPS)
-- Large images slow down tagging
-- Disable it in `config.json`: `"enableMLTagging": false`
-
-For more help, see [README.md](README.md).
+Need more detail? See [README.md](README.md) for architecture and maintenance guidance.

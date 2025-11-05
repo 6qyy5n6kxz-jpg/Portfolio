@@ -1,217 +1,157 @@
-# Photo Gallery
+# Photo Gallery — Automated Portfolio Pipeline
 
-A modern, responsive photo gallery static site for GitHub Pages that pulls images from a public Google Drive folder. Features include:
+A modern static gallery tailored for large photo catalogs ( ~1.4k images ) hosted on GitHub Pages. The site consumes a pre-built `manifest.json` that already contains AI-generated tags, difficulty scores, seasons, dominant colors, EXIF camera data, and orientation metadata. A GitHub Actions workflow keeps that manifest in sync with your Google Drive portfolio so new uploads are automatically tagged and published.
 
-- **Google Drive Integration**: Reads images directly from Drive API v3
-- **On-Device ML Tagging**: TensorFlow.js mobilenet classifies images in-browser
-- **EXIF Extraction**: Extracts camera, lens, date, and orientation metadata
-- **Smart Filtering**: Filter by season, difficulty, orientation, year, and color
-- **Full-Text Search**: Search across image names, tags, camera, and lens
-- **Pagination**: Configurable items per page
-- **Manifest Caching**: localStorage caching + periodic GitHub Action updates
-- **Dark Theme**: Modern, responsive UI with smooth animations
-- **Lazy Loading**: Images load on-demand for performance
-- **Graceful Degradation**: Works without ML if mobilenet unavailable
+## Highlights
 
-## Setup
+- **Zero-runtime AI** – TensorFlow (server-side) classifies each image, storing 3‑5 descriptive tags, a difficulty score (1–5), and dominant color swatches directly in the manifest.
+- **Drive recursion** – The manifest builder walks your Drive tree (including subfolders) and retains relative paths so collections can stay organised.
+- **Fast client UX** – The browser only parses JSON; no EXIF reads, ML downloads, or Drive requests at runtime. Filters, search, and pagination stay instant even for thousands of assets.
+- **Automated publishing** – A scheduled GitHub Action regenerates the manifest, commits the results, and redeploys the static site. Hook it into Drive webhooks or a Google Apps Script to refresh immediately on new uploads.
+- **Configurable filters** – Season, difficulty (1–5), orientation, colour palette, and free‑text search across titles, tags, camera, and lens fields.
 
-### 1. Create Google Drive Folder & API Key
+## Architecture Overview
 
-1. Create a public folder in Google Drive and copy its ID from the URL: `https://drive.google.com/drive/folders/{FOLDER_ID}`
-2. Create a **Google Cloud Project**:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project
-   - Enable the **Google Drive API**
-   - Create an **API Key** (restrict to HTTP referrers: `*github.io/*`)
-3. Make your Drive folder **public** (anyone with link can view)
+```
++----------------------+        +----------------------+        +----------------------+
+|  Google Drive Folder |  ==>   |  scripts/build_*.py |  ==>   |  public/manifest.json|
++----------------------+        +----------------------+        +----------------------+
+         ▲                                 │                              │
+         │  (API key & folder ID)          │ GitHub Action (nightly/manual│
+         │                                 ▼                              ▼
+   Google Cloud Project            GitHub Actions Workflow           GitHub Pages Site
+```
 
-### 2. Configure Your Site
+1. `scripts/build_manifest.py` lists every image (recursively) in the Drive folder using an API key restricted to that folder.
+2. For items whose Drive `modifiedTime` or internal AI version changed, it downloads the asset, runs TensorFlow MobileNetV2 locally, extracts EXIF data with Pillow, infers colour and difficulty, and writes the enriched record.
+3. The workflow commits `public/manifest.json` back to the repo so GitHub Pages serves a fully tagged dataset.
+4. `app.js` simply loads the manifest, builds filters, and renders the grid – no client-side ML or Drive calls required.
 
-Edit `public/config.json`:
+## Getting Started
+
+### 1. Prepare Google Drive & Cloud Project
+
+1. Create (or identify) the Drive folder containing your portfolio. If you use subfolders to group sets, leave the structure intact – the manifest stores the relative path.
+2. In the [Google Cloud Console](https://console.cloud.google.com/):
+   - Create a project.
+   - Enable the **Google Drive API**.
+   - Create an **API key**. Lock it down to the Drive API and (optionally) to the public IP ranges used by GitHub Actions.
+3. Make the folder readable for “anyone with the link”. The manifest builder only accesses public assets via the API key.
+
+### 2. Configure secrets for GitHub Actions
+
+In your repository → **Settings** → **Secrets and variables** → **Actions**:
+
+| Secret | Description |
+|--------|-------------|
+| `GOOGLE_API_KEY` | API key generated above. |
+| `GOOGLE_DRIVE_FOLDER_ID` | The root folder ID (string after `/folders/` in the Drive URL). |
+
+### 3. Local configuration
+
+`public/config.json` controls UI-facing options. Only the gallery title and optional paging size remain:
 
 ```json
 {
   "title": "My Photo Gallery",
-  "GOOGLE_DRIVE_FOLDER_ID": "your-folder-id-here",
-  "GOOGLE_API_KEY": "your-api-key-here",
-  "ITEMS_PER_PAGE": 20,
-  "enableMLTagging": true
+  "ITEMS_PER_PAGE": 30
 }
 ```
 
-**Security Note**: The API key is public-facing in the browser. Restrict it via:
-- HTTP referrer restrictions to your GitHub Pages domain
-- API quotas in Google Cloud Console
+### 4. Install dependencies (optional local runs)
 
-### 3. Set Up GitHub Secrets (for automatic manifest generation)
+The manifest builder uses TensorFlow and Pillow. If you want to test locally:
 
-In your repository settings → **Secrets and variables** → **Actions secrets**, add:
-
-- `GOOGLE_API_KEY`: Your Google Cloud API key
-- `GOOGLE_DRIVE_FOLDER_ID`: Your Drive folder ID
-
-The workflow will generate `public/manifest.json` nightly (see `.github/workflows/build-manifest.yml`).
-
-### 4. Deploy to GitHub Pages
-
-1. Push this repo to GitHub
-2. Go to repository **Settings** → **Pages**
-3. Select **Deploy from a branch** → `main` branch
-4. Save
-5. Your site will be live at `https://username.github.io/my-portfolio`
-
-## File Structure
-
-```
-my-portfolio/
-├── index.html                    # Gallery UI (HTML template)
-├── style.css                     # Dark theme styles
-├── app.js                        # Main app logic (ES module)
-├── public/
-│   ├── config.json              # Configuration (fill in your API key)
-│   └── manifest.json            # Generated by GitHub Action (optional)
-├── scripts/
-│   └── build_manifest.py        # Python script to build manifest
-├── .github/workflows/
-│   └── build-manifest.yml       # GitHub Action workflow
-└── README.md                    # This file
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+GOOGLE_API_KEY=xxxx GOOGLE_DRIVE_FOLDER_ID=yyyy python scripts/build_manifest.py
 ```
 
-## How It Works
+When `SKIP_AI=1` the script skips heavy downloads and simply reuses cached metadata – handy for dry runs.
 
-### On First Visit (or cache expired)
+### 5. Deploy via GitHub Pages
 
-1. Browser loads `app.js` and checks for cached manifest in localStorage
-2. If missing/expired, tries to fetch `public/manifest.json`
-3. If that fails, queries Google Drive API v3 directly
-4. Extracts EXIF metadata from each image
-5. Loads TensorFlow mobilenet model
-6. Classifies each image (top 3 predictions become tags)
-7. Computes color classification and difficulty
-8. Caches manifest for 24 hours
-9. Renders gallery with filters & pagination
+Push the repository, enable **Settings → Pages → Deploy from branch → main**, and the static site will update after each commit. The workflow (`.github/workflows/build-manifest.yml`) runs nightly and on manual dispatch; extend it with repository dispatch or Apps Script webhooks for near real-time updates.
 
-### On Subsequent Visits (within 24 hours)
+## Manifest Schema
 
-- Loads manifest from localStorage immediately (no API calls)
-- Renders gallery instantly
+Each record in `public/manifest.json` follows this shape:
 
-### GitHub Action (Nightly)
-
-- `scripts/build_manifest.py` queries Google Drive API
-- Builds lightweight manifest with basic season/year metadata
-- Commits `public/manifest.json` to repo (skip heavy ML here)
-- Browsers use pre-built manifest on first load (faster)
-
-## Manifest Structure
-
-Each image entry:
-
-```json
+```jsonc
 {
   "id": "drive-file-id",
   "name": "Image Title",
-  "src": "https://lh3.googleusercontent.com/d/{id}=w800",
+  "path": "Landscapes/2024",
+  "src": "https://lh3.googleusercontent.com/d/{id}=w1200",
   "view": "https://drive.google.com/file/d/{id}",
-  "tags": ["tree", "landscape", "sunset"],
+  "createdTime": "2024-10-12T18:05:22Z",
+  "modifiedTime": "2024-10-12T18:05:22Z",
+  "mimeType": "image/jpeg",
   "season": "Fall",
-  "year": 2023,
-  "difficulty": "Medium",
+  "year": 2024,
+  "tags": ["Fall", "Mountain", "Sunset"],
+  "difficulty": 3,
+  "color": "Orange",
   "orientation": "Landscape",
-  "color": "Warm",
-  "camera": "Canon EOS 5D",
-  "lens": "EF 24-70mm f/2.8L",
-  "width": 4000,
-  "height": 3000,
-  "dateTime": "2023-10-15T14:30:00Z"
+  "width": 2048,
+  "height": 1365,
+  "camera": "Canon EOS R5",
+  "lens": "RF24-70mm F2.8 L IS USM",
+  "dateTime": "2024:10:12 18:05:22",
+  "aiVersion": "2024-11-05"
 }
 ```
 
-## Configuration Options
+The `aiVersion` field lets the pipeline invalidate cache entries when tagging logic changes.
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `title` | string | "Photo Gallery" | Gallery title in header |
-| `GOOGLE_DRIVE_FOLDER_ID` | string | (required) | Your public Drive folder ID |
-| `GOOGLE_API_KEY` | string | (required) | Google Cloud API key |
-| `ITEMS_PER_PAGE` | number | 20 | Images per page |
-| `enableMLTagging` | boolean | true | Enable TensorFlow tagging |
+## Frontend Behaviour (`app.js`)
 
-## Filters
+- Loads configuration and cached manifest (`localStorage` with a v2 key).
+- Falls back to `public/manifest.json` on first load. If the file is missing it surfaces an error prompting a rebuild.
+- Builds filter chips for season, difficulty (1–5), orientation, and colour, preserving active selections when the dataset refreshes.
+- Full-text search scans title, tags, camera, and lens data.
+- Pagination remains configurable (`ITEMS_PER_PAGE`), with graceful empty states and accessible keyboard controls.
 
-All filters are dynamically built from image data:
+## Operations Playbook
 
-- **Season**: Spring, Summer, Fall, Winter (fixed)
-- **Difficulty**: Easy, Medium, Hard (from ML predictions)
-- **Orientation**: Landscape, Portrait (from EXIF)
-- **Year**: Derived from EXIF DateTimeOriginal or Drive createdTime
-- **Color**: Warm, Cool, Neutral (from pixel analysis)
+### Triggering a manual refresh
 
-## Search
+```
+gh workflow run "Build Photo Gallery Manifest"
+```
 
-Keyword search across:
-- Image name
-- AI-generated tags
-- Camera model
-- Lens model
+or use the **Actions → Build Photo Gallery Manifest → Run workflow** button.
 
-Example: `"Canon landscape sunset"` → finds images with those keywords.
+### Accelerating updates when new images are added
 
-## Browser Support
+1. **Scheduled build** (default): runs nightly at 02:00 UTC.
+2. **Push button**: trigger manually after a batch upload.
+3. **Webhook** (recommended): Create a Google Apps Script tied to your Drive folder that fires a `repository_dispatch` event to this repo whenever new files are added. The provided workflow will react and rebuild immediately.
 
-- Chrome/Edge 60+
-- Firefox 55+
-- Safari 11+
-- Mobile browsers (iOS Safari, Chrome Mobile)
+### Monitoring
 
-Requires:
-- TensorFlow.js & mobilenet (CDN)
-- exifr (CDN)
-- ES2017+ (async/await, fetch)
-
-## Performance Tips
-
-- **Images**: Lazy load via `loading="lazy"`
-- **Caching**: 24-hour localStorage cache + GitHub Action weekly updates
-- **Manifest**: Pre-built manifest skips API calls on first load
-- **ML**: On-device classification (no server)
-- **Pagination**: Load only visible page
+- Workflow logs show counts of discovered assets, how many required reprocessing, and any failures that fell back to cached metadata.
+- Manifest commits are tagged `chore: update manifest [skip ci]` for easy filtering.
+- Consider enabling GitHub notifications for failed workflows so you catch API quota issues quickly.
 
 ## Troubleshooting
 
-### Gallery shows "No images found"
+| Symptom | Resolution |
+|---------|------------|
+| Workflow fails with `Drive API error` | Validate the API key restrictions and confirm the folder is shared publicly. Also ensure the folder ID secret is correct. |
+| TensorFlow install times out | The CPU build is ~250 MB. Add a pip cache (`actions/setup-python` `cache: pip`) or host the job on a runner with more bandwidth if builds routinely fail. |
+| Manifest missing or stale | Run the workflow manually, or verify no merge conflicts prevented the commit. Stale manifest entries can be forced to rebuild by bumping `AI_VERSION` in `scripts/build_manifest.py`. |
+| Gallery shows “Failed to load gallery” | Confirm `public/manifest.json` exists in the branch served by GitHub Pages and that the browser isn’t blocked by CORS/ad blockers. |
 
-1. Check Drive folder is **public**
-2. Verify API key is correct in `config.json`
-3. Check browser console for errors
-4. Ensure folder ID is correct
+## Roadmap Ideas
 
-### Images fail to load
+- Add a “Collections” filter derived from the Drive subfolder path.
+- Implement incremental rendering/virtualisation for extreme catalog sizes.
+- Surface download/licensing links per image by extending the manifest schema.
+- Wire in analytics or contact forms to capture customer leads straight from the gallery.
 
-- Google Drive image URLs may be blocked by CORS in some cases
-- The fallback uses a gray placeholder image
-- Consider using Drive's **"published to web"** feature
+---
 
-### API quota exceeded
-
-- Set **HTTP referrer restrictions** in Google Cloud Console
-- Manifest caching (24h) + GitHub Action reduces API calls
-- Consider increasing quota in Cloud Console
-
-### ML tagging not working
-
-- mobilenet requires HTTPS (check GitHub Pages is HTTPS)
-- Large images slow down classification
-- Disable with `"enableMLTagging": false` in config.json
-
-## License
-
-MIT License - feel free to modify and share!
-
-## Credits
-
-Built with:
-- [TensorFlow.js](https://www.tensorflow.org/js)
-- [mobilenet](https://github.com/tensorflow/tfjs-models/tree/master/mobilenet)
-- [exifr](https://github.com/MikeKovarik/exifr)
-- [Google Drive API v3](https://developers.google.com/drive/api)
+Questions or improvements? Open an issue or tweak `scripts/build_manifest.py` and submit a PR. Happy shooting!

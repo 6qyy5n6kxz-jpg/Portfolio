@@ -1,8 +1,8 @@
 /**
  * Photo Gallery App - Main application logic
  * Loads images from Google Drive API v3
- * Uses TensorFlow.js mobilenet for on-device ML tagging
- * Extracts EXIF metadata for season/year/camera info
+ * Consumes pre-built manifest enriched with AI tagging & metadata
+ * Manifest is generated server-side via scripts/build_manifest.py
  */
 
 // ==== CONSTANTS & STATE ====
@@ -10,8 +10,7 @@ let config = {};
 let allItems = [];
 let filteredItems = [];
 let currentPage = 1;
-let model = null;
-const CACHE_KEY = 'photo-gallery-manifest';
+const CACHE_KEY = 'photo-gallery-manifest-v2';
 const CACHE_EXPIRY_HOURS = 24;
 const SEASONS = ['Spring', 'Summer', 'Fall', 'Winter'];
 const COLOR_SWATCHES = {
@@ -29,8 +28,6 @@ const COLOR_SWATCHES = {
 };
 const COLOR_ORDER = Object.keys(COLOR_SWATCHES);
 let baseListenersAttached = false;
-let taggingInProgress = false;
-let exifEnrichmentPromise = null;
 
 // ==== INITIALIZATION ====
 async function init() {
@@ -45,22 +42,6 @@ async function init() {
         renderGallery();
         attachEventListeners();
         showLoading(false);
-        exifEnrichmentPromise = enrichItemsWithEXIF();
-        if (config.enableMLTagging !== false) {
-            initTensorFlow()
-                .then(async () => {
-                    if (!model) return;
-                    if (exifEnrichmentPromise) {
-                        try {
-                            await exifEnrichmentPromise;
-                        } catch (error) {
-                            console.warn('[EXIF] Enrichment before AI tagging failed:', error.message);
-                        }
-                    }
-                    runBackgroundTagging();
-                })
-                .catch(error => console.error('[TensorFlow]', error));
-        }
     } catch (error) {
         console.error('[Gallery]', error);
         showError(`Failed to load gallery: ${error.message}`);
@@ -100,12 +81,9 @@ async function loadManifestWithCache() {
             return manifest;
         }
     } catch (error) {
-        console.warn('[Manifest] Could not fetch pre-built manifest');
+        console.warn('[Manifest] Could not fetch pre-built manifest', error);
     }
-    console.log('[Manifest] Querying Google Drive API...');
-    const manifest = await fetchImagesFromDrive();
-    setCachedManifest(manifest);
-    return manifest;
+    throw new Error('Manifest unavailable. Ensure the build_manifest workflow has generated public/manifest.json.');
 }
 
 function getCachedManifest() {
@@ -137,82 +115,11 @@ function setCachedManifest(manifest) {
 }
 
 // ==== GOOGLE DRIVE API ====
-async function fetchImagesFromDrive() {
-    if (!config.GOOGLE_DRIVE_FOLDER_ID || !config.GOOGLE_API_KEY) {
-        throw new Error('GOOGLE_DRIVE_FOLDER_ID and GOOGLE_API_KEY required in config.json');
-    }
-    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-    const allImages = [];
-    
-    // Recursive function to fetch images from folder and subfolders
-    async function fetchFromFolder(folderId, depth = 0, folderName = 'root') {
-        if (depth > 10) {
-            console.warn('[Drive API] Max folder depth reached (10)');
-            return;
-        }
-        
-        const query = `'${folderId}' in parents and trashed=false`;
-        const fields = 'files(id,name,mimeType,createdTime,modifiedTime,webViewLink)';
-        const url = new URL('https://www.googleapis.com/drive/v3/files');
-        url.searchParams.set('q', query);
-        url.searchParams.set('fields', fields);
-        url.searchParams.set('key', config.GOOGLE_API_KEY);
-        url.searchParams.set('pageSize', '1000');
-        
-        try {
-            console.log(`[Drive API] Fetching folder: ${folderName} (depth ${depth})`);
-            const response = await fetch(url.toString());
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || `HTTP ${response.status}`);
-            }
-            const data = await response.json();
-            const items = data.files || [];
-            console.log(`[Drive API] Found ${items.length} items in ${folderName}`);
-            
-            // Process each item
-            for (const item of items) {
-                const ext = item.name.split('.').pop().toLowerCase();
-                
-                // If it's an image, add it
-                if (imageExtensions.includes(ext)) {
-                    console.log(`[Drive API] Found image: ${item.name}`);
-                    allImages.push({
-                        id: item.id,
-                        name: item.name.replace(/\.[^/.]+$/, ''),
-                        src: `https://lh3.googleusercontent.com/d/${item.id}=w800`,
-                        view: item.webViewLink,
-                        createdTime: item.createdTime,
-                        modifiedTime: item.modifiedTime
-                    });
-                }
-                // If it's a folder, recurse into it
-                else if (item.mimeType === 'application/vnd.google-apps.folder') {
-                    console.log(`[Drive API] Found subfolder: ${item.name}`);
-                    await fetchFromFolder(item.id, depth + 1, item.name);
-                }
-            }
-        } catch (error) {
-            console.error(`[Drive API] Error fetching folder ${folderName}:`, error);
-            throw error;
-        }
-    }
-    
-    try {
-        console.log('[Drive API] Fetching images from folder (including subfolders)...');
-        await fetchFromFolder(config.GOOGLE_DRIVE_FOLDER_ID);
-        console.log(`[Drive API] Found ${allImages.length} images total`);
-        return allImages;
-    } catch (error) {
-        console.error('[Drive API]', error);
-        throw new Error(`Google Drive API error: ${error.message}`);
-    }
-}
-
 // ==== IMAGE METADATA PROCESSING ====
 async function processImageMetadata(manifest) {
     return manifest.map((item) => {
-        const { season, year } = deriveSeasonAndYear({}, item);
+        const season = item.season || 'Unknown';
+        const year = item.year || new Date().getFullYear();
         return {
             ...item,
             tags: Array.isArray(item.tags) ? [...item.tags] : [],
@@ -228,302 +135,6 @@ async function processImageMetadata(manifest) {
             dateTime: item.dateTime || null
         };
     });
-}
-
-async function enrichItemsWithEXIF() {
-    if (!Array.isArray(allItems) || allItems.length === 0) return;
-    console.log('[EXIF] Enriching images with metadata...');
-    const updatedItems = [];
-    for (const item of allItems) {
-        try {
-            const exifData = await extractEXIF(item.src);
-            const { season, year } = deriveSeasonAndYear(exifData, item);
-            updatedItems.push({
-                ...item,
-                season,
-                year,
-                orientation: exifData.orientation || item.orientation,
-                camera: exifData.camera || item.camera,
-                lens: exifData.lens || item.lens,
-                width: exifData.width || item.width,
-                height: exifData.height || item.height,
-                dateTime: exifData.dateTime || item.dateTime
-            });
-        } catch (error) {
-            console.warn(`[EXIF] ${item.name || item.id}:`, error.message);
-            updatedItems.push(item);
-        }
-    }
-    allItems = updatedItems;
-    buildFilters({ preserveActive: true });
-    applyFilters({ preservePage: true });
-    console.log('[EXIF] Metadata enrichment complete');
-}
-
-async function extractEXIF(imageSrc) {
-    try {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        const dimensionPromise = new Promise((resolve) => {
-            img.onload = () => {
-                resolve({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight
-                });
-            };
-            img.onerror = () => resolve({});
-            img.src = imageSrc;
-        });
-        const exifData = await exifr.parse(imageSrc).catch(() => ({}));
-        const dimensions = await dimensionPromise;
-        const dateTime = exifData.DateTimeOriginal || exifData.DateTime;
-        const camera = exifData.Model || '';
-        const lens = exifData.LensModel || '';
-        const orientation = (exifData.Orientation === 8 || exifData.Orientation === 6)
-            ? 'Portrait'
-            : 'Landscape';
-        return {
-            camera: camera.substring(0, 50),
-            lens: lens.substring(0, 50),
-            dateTime,
-            orientation,
-            width: dimensions.width || 0,
-            height: dimensions.height || 0
-        };
-    } catch (error) {
-        console.warn('[EXIF]', error.message);
-        return {};
-    }
-}
-
-function deriveSeasonAndYear(exifData, item) {
-    let date = null;
-    if (exifData.dateTime) date = new Date(exifData.dateTime);
-    else if (item.createdTime) date = new Date(item.createdTime);
-    let year = new Date().getFullYear();
-    let season = 'Unknown';
-    if (date && !isNaN(date)) {
-        year = date.getFullYear();
-        const month = date.getMonth();
-        if (month >= 2 && month <= 4) season = 'Spring';
-        else if (month >= 5 && month <= 7) season = 'Summer';
-        else if (month >= 8 && month <= 10) season = 'Fall';
-        else season = 'Winter';
-    }
-    return { season, year };
-}
-
-// ==== TENSORFLOW.JS ====
-async function initTensorFlow() {
-    try {
-        console.log('[TensorFlow] Loading mobilenet...');
-        model = await mobilenet.load();
-        console.log('[TensorFlow] Model loaded');
-    } catch (error) {
-        console.error('[TensorFlow]', error);
-        model = null;
-    }
-}
-
-async function runBackgroundTagging() {
-    if (taggingInProgress) return;
-    taggingInProgress = true;
-    try {
-        console.log(`[AI] Enhancing metadata for ${allItems.length} images...`);
-        const taggedItems = await tagImagesWithAI(allItems);
-        allItems = taggedItems;
-        buildFilters({ preserveActive: true });
-        applyFilters({ preservePage: true });
-        console.log('[AI] Tagging complete');
-    } catch (error) {
-        console.warn('[AI] Background tagging failed:', error.message);
-    } finally {
-        taggingInProgress = false;
-    }
-}
-
-async function tagImagesWithAI(items) {
-    if (!model) return items;
-    return Promise.all(items.map(async (item) => {
-        try {
-            const img = await loadImageElement(item.src);
-            const predictions = await model.classify(img);
-            const tags = buildTagList(item, predictions);
-            const color = classifyColorFromImage(img);
-            const difficulty = computeDifficultyScore(predictions);
-            return {
-                ...item,
-                tags,
-                color,
-                difficulty
-            };
-        } catch (error) {
-            console.warn(`[AI] ${item.name}:`, error.message);
-            return {
-                ...item,
-                tags: buildTagList(item, []),
-                difficulty: normalizeDifficultyInput(item.difficulty),
-                color: item.color || 'Neutral'
-            };
-        }
-    }));
-}
-
-async function loadImageElement(imageSrc) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('Image load failed'));
-        img.src = imageSrc;
-    });
-}
-
-function buildTagList(item, predictions = []) {
-    const uniqueTags = new Map();
-    const addTag = (tag) => {
-        if (!tag) return;
-        const formatted = formatTag(tag);
-        const key = formatted.toLowerCase();
-        if (!uniqueTags.has(key)) uniqueTags.set(key, formatted);
-    };
-
-    addTag(item.season && item.season !== 'Unknown' ? item.season : null);
-    if (Array.isArray(item.tags)) {
-        item.tags.forEach(addTag);
-    }
-
-    const sortedPredictions = Array.isArray(predictions)
-        ? [...predictions].sort((a, b) => (b.probability || 0) - (a.probability || 0))
-        : [];
-
-    sortedPredictions
-        .filter(prediction => (prediction.probability || 0) >= 0.2)
-        .forEach(prediction => addTag(prediction.className));
-
-    for (const prediction of sortedPredictions) {
-        if (uniqueTags.size >= 5) break;
-        addTag(prediction.className);
-    }
-
-    if (uniqueTags.size < 3) addTag(item.orientation);
-    if (uniqueTags.size < 3 && item.camera) {
-        const cameraTag = item.camera.split(' ')[0];
-        addTag(cameraTag);
-    }
-    if (uniqueTags.size < 3 && item.color) addTag(item.color);
-    if (uniqueTags.size < 3) addTag('Photography');
-
-    const tags = Array.from(uniqueTags.values());
-    return tags.slice(0, Math.min(5, Math.max(3, tags.length)));
-}
-
-function formatTag(tag) {
-    if (!tag) return '';
-    return tag
-        .toString()
-        .trim()
-        .split(/[\s_/,-]+/)
-        .filter(Boolean)
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-}
-
-function classifyColorFromImage(img) {
-    try {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        if (!ctx) return 'Neutral';
-        const sampleWidth = 64;
-        const ratio = img.naturalWidth ? img.naturalHeight / img.naturalWidth : 1;
-        canvas.width = sampleWidth;
-        canvas.height = Math.max(1, Math.round(sampleWidth * ratio));
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-        let r = 0, g = 0, b = 0, count = 0;
-        for (let i = 0; i < imageData.length; i += 16) {
-            r += imageData[i];
-            g += imageData[i + 1];
-            b += imageData[i + 2];
-            count++;
-        }
-        if (count === 0) return 'Neutral';
-        const avgR = r / count;
-        const avgG = g / count;
-        const avgB = b / count;
-        return categorizeColor(avgR, avgG, avgB);
-    } catch (error) {
-        console.warn('[Color]', error.message);
-        return 'Neutral';
-    }
-}
-
-function categorizeColor(r, g, b) {
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const luminance = (0.299 * r) + (0.587 * g) + (0.114 * b);
-    const saturation = max === 0 ? 0 : (max - min) / max;
-
-    if (luminance < 40) return 'Black';
-    if (luminance > 220 && saturation < 0.2) return 'White';
-    if (saturation < 0.12) return 'Gray';
-
-    const hue = computeHue(r, g, b);
-
-    if (luminance < 90 && hue >= 15 && hue <= 45) return 'Brown';
-    if (hue < 15 || hue >= 345) return 'Red';
-    if (hue < 45) return 'Orange';
-    if (hue < 70) return 'Yellow';
-    if (hue < 170) return 'Green';
-    if (hue < 250) return 'Blue';
-    if (hue < 310) return 'Purple';
-    return 'Red';
-}
-
-function computeHue(r, g, b) {
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    if (max === min) return 0;
-    let hue;
-    if (max === r) {
-        hue = (g - b) / (max - min);
-    } else if (max === g) {
-        hue = 2 + (b - r) / (max - min);
-    } else {
-        hue = 4 + (r - g) / (max - min);
-    }
-    hue *= 60;
-    if (hue < 0) hue += 360;
-    return hue;
-}
-
-function computeDifficultyScore(predictions) {
-    if (!Array.isArray(predictions) || predictions.length === 0) return 3;
-    const topConfidence = predictions[0]?.probability || 0;
-    let score;
-    if (topConfidence >= 0.8) score = 1;
-    else if (topConfidence >= 0.6) score = 2;
-    else if (topConfidence >= 0.4) score = 3;
-    else if (topConfidence >= 0.25) score = 4;
-    else score = 5;
-
-    const complexSubjects = [
-        'person', 'people', 'portrait', 'crowd', 'dog', 'cat', 'bird',
-        'sports', 'action', 'vehicle', 'car', 'night', 'city', 'architecture',
-        'concert', 'wave', 'water', 'animal'
-    ];
-    const hasComplexSubject = predictions.some(prediction =>
-        complexSubjects.some(subject =>
-            prediction.className?.toLowerCase().includes(subject)
-        )
-    );
-
-    if (hasComplexSubject) score += 1;
-
-    const uncertainPredictions = predictions.filter(prediction => (prediction.probability || 0) < 0.2).length;
-    if (uncertainPredictions > predictions.length / 2) score += 1;
-
-    return clamp(score, 1, 5);
 }
 
 function normalizeDifficultyInput(value) {
@@ -645,7 +256,7 @@ function applyFilters(options = {}) {
         if (filters.orientation.length > 0 && !filters.orientation.includes(item.orientation)) return false;
         if (filters.color.length > 0 && !filters.color.includes(item.color)) return false;
         if (filters.search) {
-            const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens}`.toLowerCase();
+            const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens} ${item.path || ''}`.toLowerCase();
             if (!searchStr.includes(filters.search)) return false;
         }
         return true;
@@ -681,7 +292,7 @@ function renderGallery() {
                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23333%22 width=%22200%22 height=%22200%22/%3E%3C/svg%3E'">
             <div class="gallery-card-content">
                 <div class="gallery-card-title">${escapeHtml(item.name)}</div>
-                <div class="gallery-card-meta">${item.season} • Difficulty ${item.difficulty}/5</div>
+                <div class="gallery-card-meta">${item.path ? `${escapeHtml(item.path)} • ` : ''}${item.season} • Difficulty ${item.difficulty}/5</div>
                 <div class="gallery-card-tags">
                     ${item.tags.map((tag, idx) => 
                         `<span class="tag ${idx >= (item.tags.length - 3) ? 'ai-tag' : ''}">${escapeHtml(tag)}</span>`
@@ -719,6 +330,7 @@ function openModal(itemId) {
     info.innerHTML = `
         <strong>${escapeHtml(item.name)}</strong><br>
         ${item.season} • Difficulty ${item.difficulty}/5 • ${item.orientation}<br>
+        ${item.path ? `Collection: ${escapeHtml(item.path)}<br>` : ''}
         Color: ${item.color}${item.year ? ` • Year ${item.year}` : ''}<br>
         ${item.camera} ${item.lens}<br>
         ${item.tags.map(tag => `<span class="tag ai-tag">${escapeHtml(tag)}</span>`).join('')}
