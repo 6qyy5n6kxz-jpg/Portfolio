@@ -55,9 +55,13 @@ async function loadConfig() {
 // ==== MANIFEST MANAGEMENT ====
 async function loadManifestWithCache() {
     const cached = getCachedManifest();
-    if (cached) {
-        console.log('[Manifest] Using cached manifest');
+    if (cached && cached.length > 0) {
+        console.log('[Manifest] Using cached manifest with', cached.length, 'images');
         return cached;
+    }
+    if (cached && cached.length === 0) {
+        console.log('[Manifest] Cached manifest is empty, fetching fresh...');
+        localStorage.removeItem(CACHE_KEY);
     }
     try {
         const response = await fetch('./public/manifest.json');
