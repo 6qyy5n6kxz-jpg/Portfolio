@@ -367,7 +367,8 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
     interval = OPENAI_REQUEST_INTERVAL
     data: Optional[dict] = None
     last_error = None
-    for attempt in range(1, OPENAI_MAX_RETRIES + 1):
+    attempt = 1
+    while attempt <= OPENAI_MAX_RETRIES:
         try:
             wait_for_openai(interval)
             response = client.responses.create(
@@ -418,15 +419,24 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
             last_error = exc
             message = str(exc)
             if "rate_limit" in message or "Limit" in message:
-                interval = max(interval, OPENAI_BACKOFF_SECONDS)
-                logger.warning("[OpenAI] %s (attempt %s/%s) rate limit: %s", item.name, attempt, OPENAI_MAX_RETRIES, message)
+                wait_seconds = OPENAI_BACKOFF_SECONDS
+                match = re.search(r"try again in ([0-9.]+)s", message)
+                if match:
+                    wait_seconds = max(wait_seconds, float(match.group(1)))
+                interval = max(interval, wait_seconds)
+                logger.warning("[OpenAI] %s (attempt %s/%s) rate limit: %s (sleeping %.2fs)", item.name, attempt, OPENAI_MAX_RETRIES, message, wait_seconds)
+                time.sleep(wait_seconds)
+                attempt += 1
                 continue
             if "TPM" in message or "tokens per min" in message:
                 logger.warning("[OpenAI] %s: token cap reached, deferring to fallback. (%s)", item.name, message)
                 return None
             logger.warning("[OpenAI] %s (attempt %s/%s): %s", item.name, attempt, OPENAI_MAX_RETRIES, message)
+            time.sleep(OPENAI_BACKOFF_SECONDS)
+            attempt += 1
             continue
-    else:
+        attempt += 1
+    if data is None:
         if last_error:
             logger.warning("[OpenAI] %s: giving up after %s attempts (%s).", item.name, OPENAI_MAX_RETRIES, last_error)
         return None

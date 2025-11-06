@@ -53,7 +53,7 @@ Optional GitHub **repository variables** (Settings → Secrets and variables →
 | Variable | Suggested value | Purpose |
 |----------|-----------------|---------|
 | `OPENAI_REQUEST_INTERVAL` | `20` (seconds) | Sleep between GPT calls if you have a low requests-per-minute quota. |
-| `OPENAI_MAX_RETRIES` | `5` | Number of times to retry GPT before falling back to TensorFlow. |
+| `OPENAI_MAX_RETRIES` | `10` | Number of times to retry GPT before falling back to TensorFlow. |
 | `OPENAI_BACKOFF_SECONDS` | `20` | How long to pause after a rate-limit response before retrying. |
 | `MAX_ITEMS_PER_RUN` | `50` | Optional cap on how many images get fresh AI tagging per workflow run. Useful for working through large backlogs without hitting rate limits. |
 
