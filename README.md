@@ -111,7 +111,7 @@ Each record in `public/manifest.json` follows this shape:
   "lens": "RF24-70mm F2.8 L IS USM",
   "dateTime": "2024:10:12 18:05:22",
   "description": "A glowing sunset illuminates a winding river and village beneath a starry sky.",
-  "aiVersion": "2025-03-01"
+  "aiVersion": "2025-03-20"
 }
 ```
 

@@ -77,7 +77,7 @@ except Exception:  # pragma: no cover - fallback if TF is not available
 
 # ==== CONSTANTS =============================================================
 
-AI_VERSION = "2025-03-01"  # bump to force reprocessing of all assets
+AI_VERSION = "2025-03-20"  # bump to force reprocessing of all assets
 SUPPORTED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "bmp"}
 DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files"
 OUTPUT_PATH = Path("public/manifest.json")
@@ -712,34 +712,37 @@ def build_manifest(
         )
         if needs_rebuild and process_ids is not None and item.id not in process_ids:
             logger.info("Deferring %s (ID %s) to a later run.", item.name, item.id)
-            if cached:
-                manifest_entries.append(ManifestEntry(**cached))
+            cached_entry = cached if cached else {}
+            if cached_entry.get("season") and cached_entry.get("year"):
+                season = cached_entry.get("season")
+                year = int(cached_entry.get("year"))
             else:
                 season, year = derive_season_and_year(item.createdTime or datetime.utcnow().isoformat())
-                manifest_entries.append(
-                    ManifestEntry(
-                        id=item.id,
-                        name=item.display_name,
-                        path=item.path,
-                        src=f"https://lh3.googleusercontent.com/d/{item.id}=w1200",
-                        view=item.webViewLink,
-                        createdTime=item.createdTime,
-                        modifiedTime=item.modifiedTime,
-                        mimeType=item.mimeType,
-                        season=season,
-                        year=year,
-                        tags=[],
-                        difficulty=3,
-                        color="Neutral",
-                        orientation="Landscape",
-                        width=0,
-                        height=0,
-                        camera="Unknown",
-                        lens="Unknown",
-                        dateTime=None,
-                        description="",
-                    )
+            manifest_entries.append(
+                ManifestEntry(
+                    id=item.id,
+                    name=item.display_name,
+                    path=item.path,
+                    src=f"https://lh3.googleusercontent.com/d/{item.id}=w1200",
+                    view=item.webViewLink,
+                    createdTime=item.createdTime,
+                    modifiedTime=item.modifiedTime,
+                    mimeType=item.mimeType,
+                    season=season,
+                    year=year,
+                    tags=[],
+                    difficulty=3,
+                    color=cached_entry.get("color", "Neutral"),
+                    orientation=cached_entry.get("orientation", "Landscape"),
+                    width=int(cached_entry.get("width", 0)),
+                    height=int(cached_entry.get("height", 0)),
+                    camera=cached_entry.get("camera", "Unknown"),
+                    lens=cached_entry.get("lens", "Unknown"),
+                    dateTime=cached_entry.get("dateTime"),
+                    description="",
+                    aiVersion="PENDING",
                 )
+            )
             continue
 
         if not needs_rebuild:
