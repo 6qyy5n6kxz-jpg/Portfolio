@@ -339,31 +339,6 @@ def init_openai_client() -> Optional["OpenAI"]:
         return None
 
 
-OPENAI_RESPONSE_FORMAT = {
-    "type": "json_schema",
-    "json_schema": {
-        "name": "image_metadata",
-        "schema": {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {
-                "tags": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "minItems": 0,
-                    "maxItems": 5,
-                },
-                "difficulty": {"type": "integer", "minimum": 1, "maximum": 5},
-                "primary_color": {"type": "string"},
-                "description": {"type": "string", "maxLength": 200},
-            },
-            "required": ["tags", "difficulty", "primary_color", "description"],
-        },
-        "strict": True,
-    },
-}
-
-
 def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_url: str) -> Optional[dict]:
     if client is None:
         return None
@@ -371,7 +346,7 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
     palette_options = ", ".join(COLOR_PALETTE.keys())
     prompt = dedent(
         f"""
-        You label artwork for an online portfolio. Review the provided image and respond with **only** valid JSON using this schema:
+        You label artwork for an online portfolio. Review the provided image and respond with **only** a single JSON object using this schema:
         {{
           "tags": ["Tag 1", "Tag 2", "Tag 3"],
           "difficulty": 3,
@@ -385,6 +360,7 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
         - Primary color: choose one of [{palette_options}] representing the dominant palette viewers perceive.
         - Description: one sentence highlighting the subject and vibe.
         - Avoid generic filler like "Painting" or "Art" unless essential; favour meaningful content descriptors.
+        - Output **only** the JSON object; do not include markdown fences or commentary.
         """
     ).strip()
 
@@ -411,7 +387,6 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
                         ],
                     },
                 ],
-                response_format=OPENAI_RESPONSE_FORMAT,
             )
             result_text = getattr(response, "output_text", "").strip()
             if not result_text:
@@ -423,7 +398,19 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
                             break
                     if result_text:
                         break
-            data = json.loads(result_text)
+            try:
+                data = json.loads(result_text)
+            except json.JSONDecodeError:
+                json_candidates = re.findall(r"\{.*\}", result_text, flags=re.DOTALL)
+                data = None
+                for candidate in json_candidates:
+                    try:
+                        data = json.loads(candidate)
+                        break
+                    except json.JSONDecodeError:
+                        continue
+                if data is None:
+                    raise
             if not isinstance(data, dict):
                 raise ValueError("OpenAI response was not a JSON object")
             break
