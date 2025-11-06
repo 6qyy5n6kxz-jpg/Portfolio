@@ -28,6 +28,9 @@ const COLOR_SWATCHES = {
 };
 const COLOR_ORDER = Object.keys(COLOR_SWATCHES);
 let baseListenersAttached = false;
+let filtersToggleInitialized = false;
+let filtersToggleBtn = null;
+let filtersContainerEl = null;
 
 // ==== INITIALIZATION ====
 async function init() {
@@ -270,6 +273,7 @@ function applyFilters(options = {}) {
         currentPage = 1;
     }
     renderGallery();
+    refreshFiltersToggleState();
 }
 
 // ==== GALLERY RENDERING ====
@@ -349,6 +353,7 @@ function closeModal() {
 function attachEventListeners() {
     if (baseListenersAttached) return;
     baseListenersAttached = true;
+    initFiltersToggle();
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', () => applyFilters());
@@ -383,6 +388,46 @@ function attachEventListeners() {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeModal();
     });
+}
+
+function initFiltersToggle() {
+    if (filtersToggleInitialized) return;
+    filtersToggleBtn = document.getElementById('toggleFiltersBtn');
+    filtersContainerEl = document.querySelector('.filters-container');
+    if (!filtersToggleBtn || !filtersContainerEl) return;
+
+    const update = () => {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (isMobile) {
+            filtersToggleBtn.style.display = 'flex';
+            const isOpen = filtersContainerEl.classList.contains('is-open');
+            filtersToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        } else {
+            filtersToggleBtn.style.display = 'none';
+            filtersContainerEl.classList.remove('is-open');
+            filtersToggleBtn.setAttribute('aria-expanded', 'true');
+        }
+        refreshFiltersToggleState();
+    };
+
+    filtersToggleBtn.addEventListener('click', () => {
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+        filtersContainerEl.classList.toggle('is-open');
+        const isOpen = filtersContainerEl.classList.contains('is-open');
+        filtersToggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        refreshFiltersToggleState();
+    });
+
+    window.addEventListener('resize', update);
+    update();
+    filtersToggleInitialized = true;
+}
+
+function refreshFiltersToggleState() {
+    if (!filtersToggleBtn) return;
+    const hasActiveFilters = document.querySelector('.filter-chip.active') !== null || (document.getElementById('searchInput')?.value ?? '').length > 0;
+    filtersToggleBtn.classList.toggle('has-active', hasActiveFilters);
 }
 
 // ==== UTILITIES ====

@@ -75,6 +75,45 @@ body {
 }
 
 /* Filters */
+.mobile-filters-toggle {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    color: var(--color-text);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.mobile-filters-toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.mobile-filters-toggle.has-active {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.filters-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    transition: transform var(--transition-fast);
+}
+
+.mobile-filters-toggle[aria-expanded="true"] .filters-toggle-icon {
+    transform: rotate(180deg);
+}
+
 .filters-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -155,6 +194,60 @@ body {
     background-color: var(--chip-color, var(--color-accent));
     color: #fff;
     border-color: var(--chip-color, var(--color-accent));
+}
+
+@media (max-width: 768px) {
+    .mobile-filters-toggle {
+        display: flex;
+    }
+
+    .filters-container {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        padding: var(--spacing-md);
+        background-color: rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--color-border);
+        border-radius: var(--border-radius);
+        margin-top: 0;
+    }
+
+    .filters-container.is-open {
+        display: flex;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+
+    .filter-chips {
+        gap: 0.35rem;
+    }
+
+    .filter-chip {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 16px;
+    }
+
+    .filter-chip.color-chip {
+        padding-left: calc(0.7rem + 1.2rem);
+    }
+
+    .filter-chip.color-chip::before {
+        width: 0.75rem;
+        height: 0.75rem;
+        left: 0.45rem;
+    }
+
+    .clear-filters-btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
 }
 
 .clear-filters-btn {
