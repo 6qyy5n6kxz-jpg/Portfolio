@@ -55,6 +55,7 @@ Optional GitHub **repository variables** (Settings → Secrets and variables →
 | `OPENAI_REQUEST_INTERVAL` | `20` (seconds) | Sleep between GPT calls if you have a low requests-per-minute quota. |
 | `OPENAI_MAX_RETRIES` | `5` | Number of times to retry GPT before falling back to TensorFlow. |
 | `OPENAI_BACKOFF_SECONDS` | `20` | How long to pause after a rate-limit response before retrying. |
+| `MAX_ITEMS_PER_RUN` | `50` | Optional cap on how many images get fresh AI tagging per workflow run. Useful for working through large backlogs without hitting rate limits. |
 
 ### 3. Local configuration
 
@@ -157,6 +158,7 @@ The workflow will rebuild the manifest immediately.
 1. **Scheduled build** (default): runs nightly at 02:00 UTC.
 2. **Push button**: trigger manually after a batch upload.
 3. **Drive webhook** (recommended): Connect Google Apps Script or another automation tool to the Drive folder so it calls the dispatch API above whenever new images are added. Store the GitHub token in the script’s secure properties.
+4. **Batching strategy**: On large backlogs, set `MAX_ITEMS_PER_RUN` (e.g., 50) so each run only sends a manageable number of images to GPT. The cache ensures already-tagged shots skip future runs automatically.
 
 ### Monitoring
 

@@ -31,6 +31,7 @@ Optional **repository variables** to smooth out rate limits when running GPT tag
 | `OPENAI_REQUEST_INTERVAL` | `20` | Wait this many seconds between GPT calls (handy on free-tier limits). |
 | `OPENAI_MAX_RETRIES` | `5` | Retry attempts before falling back to TensorFlow. |
 | `OPENAI_BACKOFF_SECONDS` | `20` | Additional delay inserted when a rate-limit response is returned. |
+| `MAX_ITEMS_PER_RUN` | `50` | Process only this many new/changed images per run; leave unset once the backlog is caught up. |
 
 ## 3. Adjust UI config
 

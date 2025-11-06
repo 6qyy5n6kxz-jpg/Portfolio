@@ -671,6 +671,26 @@ def build_manifest(
     ]
     logger.info("%s of %s assets require fresh analysis", len(process_needed), len(items))
 
+    max_items = 0
+    try:
+        max_items = int(os.getenv("MAX_ITEMS_PER_RUN", "0"))
+    except ValueError:
+        max_items = 0
+
+    deferred_ids: set[str] = set()
+    process_ids: Optional[set[str]] = None
+    if not skip_ai and max_items > 0 and len(process_needed) > max_items:
+        process_ids = {item.id for item in process_needed[:max_items]}
+        deferred_ids = {item.id for item in process_needed[max_items:]}
+        logger.info(
+            "Limiting AI processing to %s images this run (MAX_ITEMS_PER_RUN=%s). Remaining %s will be handled in future runs.",
+            len(process_ids),
+            max_items,
+            len(deferred_ids),
+        )
+    elif process_needed:
+        process_ids = {item.id for item in process_needed}
+
     model: Optional[MobileNetV2] = None
     model_provider: Optional[Callable[[], Optional[MobileNetV2]]] = None
     if not skip_ai and process_needed:
@@ -690,6 +710,37 @@ def build_manifest(
             or cached.get("modifiedTime") != item.modifiedTime
             or cached.get("aiVersion") != AI_VERSION
         )
+        if needs_rebuild and process_ids is not None and item.id not in process_ids:
+            logger.info("Deferring %s (ID %s) to a later run.", item.name, item.id)
+            if cached:
+                manifest_entries.append(ManifestEntry(**cached))
+            else:
+                season, year = derive_season_and_year(item.createdTime or datetime.utcnow().isoformat())
+                manifest_entries.append(
+                    ManifestEntry(
+                        id=item.id,
+                        name=item.display_name,
+                        path=item.path,
+                        src=f"https://lh3.googleusercontent.com/d/{item.id}=w1200",
+                        view=item.webViewLink,
+                        createdTime=item.createdTime,
+                        modifiedTime=item.modifiedTime,
+                        mimeType=item.mimeType,
+                        season=season,
+                        year=year,
+                        tags=[],
+                        difficulty=3,
+                        color="Neutral",
+                        orientation="Landscape",
+                        width=0,
+                        height=0,
+                        camera="Unknown",
+                        lens="Unknown",
+                        dateTime=None,
+                        description="",
+                    )
+                )
+            continue
 
         if not needs_rebuild:
             manifest_entries.append(ManifestEntry(**cached))

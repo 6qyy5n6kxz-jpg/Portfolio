@@ -24,6 +24,7 @@ The project now consists of two cohesive parts: a static, filterable gallery and
   - Nightly schedule + manual dispatch.
   - Installs Python deps via `requirements.txt` (tensorflow-cpu, Pillow, numpy, requests, openai).
   - Runs the manifest builder and commits changes (`chore: update manifest [skip ci]`).
+  - Honours optional throttling variables (`OPENAI_REQUEST_INTERVAL`, `OPENAI_MAX_RETRIES`, `OPENAI_BACKOFF_SECONDS`, `MAX_ITEMS_PER_RUN`) to stay within GPT rate limits.
 
 ### Documentation
 - `README.md` – architecture, setup, operations, and roadmap ideas.
@@ -37,6 +38,6 @@ The project now consists of two cohesive parts: a static, filterable gallery and
 1. Configure GitHub secrets: `GOOGLE_API_KEY`, `GOOGLE_DRIVE_FOLDER_ID`, and optionally `OPENAI_API_KEY` for GPT tagging.
 2. Trigger the “Build Photo Gallery Manifest” workflow to seed `public/manifest.json`.
 3. Enable GitHub Pages (main branch) and hard-refresh the site once the manifest commit lands.
-4. Optional: connect a Drive webhook/Apps Script to fire a `repository_dispatch` event for instant updates when new images are uploaded.
+4. Optional: connect a Drive webhook/Apps Script to fire a `repository_dispatch` event for instant updates when new images are uploaded. Use `MAX_ITEMS_PER_RUN` to process large backlogs in manageable batches.
 
 With this pipeline, dropping new photos into Drive and (optionally) retriggering the workflow is all that’s required to keep the public portfolio current.
