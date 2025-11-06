@@ -24,6 +24,14 @@ Repository → **Settings → Secrets and variables → Actions → New reposito
 
 These secrets power the `scripts/build_manifest.py` workflow.
 
+Optional **repository variables** to smooth out rate limits when running GPT tagging:
+
+| Variable | Example | Description |
+|----------|---------|-------------|
+| `OPENAI_REQUEST_INTERVAL` | `20` | Wait this many seconds between GPT calls (handy on free-tier limits). |
+| `OPENAI_MAX_RETRIES` | `5` | Retry attempts before falling back to TensorFlow. |
+| `OPENAI_BACKOFF_SECONDS` | `20` | Additional delay inserted when a rate-limit response is returned. |
+
 ## 3. Adjust UI config
 
 Update `public/config.json` with your preferred title and optional page size:

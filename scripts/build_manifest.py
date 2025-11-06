@@ -47,7 +47,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from textwrap import dedent
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import requests
@@ -82,9 +82,13 @@ SUPPORTED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "bmp"}
 DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files"
 OUTPUT_PATH = Path("public/manifest.json")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_REQUEST_INTERVAL = float(os.getenv("OPENAI_REQUEST_INTERVAL", "0"))  # seconds between calls
+OPENAI_MAX_RETRIES = int(os.getenv("OPENAI_MAX_RETRIES", "5"))
+OPENAI_BACKOFF_SECONDS = float(os.getenv("OPENAI_BACKOFF_SECONDS", "20"))
+_last_openai_call = 0.0
 
 # Slightly smaller thumbnail than the on-site display to minimise download.
-IMAGE_DOWNLOAD_SIZE = "w640"
+IMAGE_DOWNLOAD_SIZE = "w512"
 
 COLOR_PALETTE = {
     "Red": np.array([214, 69, 69]),
@@ -311,6 +315,17 @@ def deduplicate_tags(tags: Iterable[str]) -> List[str]:
     return ordered
 
 
+def wait_for_openai(interval: float) -> None:
+    """Respect configured rate limits between OpenAI calls."""
+    global _last_openai_call
+    if interval <= 0:
+        return
+    elapsed = time.perf_counter() - _last_openai_call
+    if elapsed < interval:
+        time.sleep(interval - elapsed)
+    _last_openai_call = time.perf_counter()
+
+
 def init_openai_client() -> Optional["OpenAI"]:
     if not OPENAI_API_KEY:
         return None
@@ -322,6 +337,31 @@ def init_openai_client() -> Optional["OpenAI"]:
     except Exception as exc:  # pragma: no cover - init errors
         logger.warning("Failed to initialise OpenAI client: %s", exc)
         return None
+
+
+OPENAI_RESPONSE_FORMAT = {
+    "type": "json_schema",
+    "json_schema": {
+        "name": "image_metadata",
+        "schema": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "minItems": 0,
+                    "maxItems": 5,
+                },
+                "difficulty": {"type": "integer", "minimum": 1, "maximum": 5},
+                "primary_color": {"type": "string"},
+                "description": {"type": "string", "maxLength": 200},
+            },
+            "required": ["tags", "difficulty", "primary_color", "description"],
+        },
+        "strict": True,
+    },
+}
 
 
 def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_url: str) -> Optional[dict]:
@@ -348,33 +388,64 @@ def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_
         """
     ).strip()
 
-    try:
-        response = client.responses.create(
-            model="gpt-4o-mini",
-            temperature=0.2,
-            max_output_tokens=400,
-            input=[
-                {
-                    "role": "system",
-                    "content": "You produce structured metadata that helps customers browse an art portfolio.",
-                },
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "input_text", "text": prompt},
-                        {"type": "input_image", "image_url": image_url},
-                    ],
-                },
-            ],
-        )
-        result_text = response.output_text.strip()
-        data = json.loads(result_text)
-    except Exception as exc:  # pragma: no cover - network/service errors
-        logger.warning("[OpenAI] %s: %s", item.name, exc)
+    interval = OPENAI_REQUEST_INTERVAL
+    data: Optional[dict] = None
+    last_error = None
+    for attempt in range(1, OPENAI_MAX_RETRIES + 1):
+        try:
+            wait_for_openai(interval)
+            response = client.responses.create(
+                model="gpt-4o-mini",
+                temperature=0.2,
+                max_output_tokens=400,
+                input=[
+                    {
+                        "role": "system",
+                        "content": "You produce structured metadata that helps customers browse an art portfolio.",
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "input_text", "text": prompt},
+                            {"type": "input_image", "image_url": image_url},
+                        ],
+                    },
+                ],
+                response_format=OPENAI_RESPONSE_FORMAT,
+            )
+            result_text = getattr(response, "output_text", "").strip()
+            if not result_text:
+                for item_output in getattr(response, "output", []) or []:
+                    for block in getattr(item_output, "content", []) or []:
+                        block_text = getattr(block, "text", None)
+                        if block_text:
+                            result_text = block_text.strip()
+                            break
+                    if result_text:
+                        break
+            data = json.loads(result_text)
+            if not isinstance(data, dict):
+                raise ValueError("OpenAI response was not a JSON object")
+            break
+        except Exception as exc:  # pragma: no cover - network/service errors
+            last_error = exc
+            message = str(exc)
+            if "rate_limit" in message or "Limit" in message:
+                interval = max(interval, OPENAI_BACKOFF_SECONDS)
+                logger.warning("[OpenAI] %s (attempt %s/%s) rate limit: %s", item.name, attempt, OPENAI_MAX_RETRIES, message)
+                continue
+            if "TPM" in message or "tokens per min" in message:
+                logger.warning("[OpenAI] %s: token cap reached, deferring to fallback. (%s)", item.name, message)
+                return None
+            logger.warning("[OpenAI] %s (attempt %s/%s): %s", item.name, attempt, OPENAI_MAX_RETRIES, message)
+            continue
+    else:
+        if last_error:
+            logger.warning("[OpenAI] %s: giving up after %s attempts (%s).", item.name, OPENAI_MAX_RETRIES, last_error)
         return None
 
-    if not isinstance(data, dict):
-        logger.warning("[OpenAI] %s: unexpected response format", item.name)
+    if data is None:
+        logger.warning("[OpenAI] %s: no data returned after retries.", item.name)
         return None
 
     raw_tags = data.get("tags") or []
@@ -498,7 +569,7 @@ def derive_season_and_year(date_str: str) -> Tuple[str, int]:
 
 def build_manifest_entry(
     item: DriveItem,
-    model: Optional[MobileNetV2],
+    model_provider: Optional[Callable[[], Optional[MobileNetV2]]],
     skip_ai: bool,
     openai_client: Optional["OpenAI"],
 ) -> ManifestEntry:
@@ -527,16 +598,19 @@ def build_manifest_entry(
             description = metadata.get("description", "")
             color = metadata.get("primary_color") or color
 
-    if not tags and not skip_ai and model:
-        prepared = resize_for_model(img)
-        raw_preds = model.predict(prepared)
-        decoded = decode_predictions(raw_preds, top=5)[0]
-        predictions = [(label.replace("_", " ").title(), float(score)) for _, label, score in decoded]
-        tags = [label for label, score in predictions if score >= 0.2][:5]
-        if len(tags) < 3:
-            tags.extend([label for label, _ in predictions if label not in tags])
-        tags = tags[:5]
-        difficulty = compute_difficulty_score(tags, predictions)
+    if not tags and not skip_ai and model_provider:
+        fallback_model = model_provider()
+        if fallback_model:
+            prepared = resize_for_model(img)
+            raw_preds = fallback_model.predict(prepared)
+            decoded = decode_predictions(raw_preds, top=5)[0]
+            predictions = [(label.replace("_", " ").title(), float(score)) for _, label, score in decoded]
+            tags = [label for label, score in predictions if score >= 0.2][:5]
+            if len(tags) < 3:
+                tags.extend([label for label, _ in predictions if label not in tags])
+            tags = tags[:5]
+            difficulty = compute_difficulty_score(tags, predictions)
+
     tags = deduplicate_tags(tags)
 
     exif_data = img.getexif() or {}
@@ -611,8 +685,15 @@ def build_manifest(
     logger.info("%s of %s assets require fresh analysis", len(process_needed), len(items))
 
     model: Optional[MobileNetV2] = None
-    if not skip_ai and process_needed and openai_client is None:
-        model = load_tf_model()
+    model_provider: Optional[Callable[[], Optional[MobileNetV2]]] = None
+    if not skip_ai and process_needed:
+        def get_tf_model() -> Optional[MobileNetV2]:
+            nonlocal model
+            if model is None:
+                model = load_tf_model()
+            return model
+
+        model_provider = get_tf_model
 
     manifest_entries: List[ManifestEntry] = []
     for item in items:
@@ -628,7 +709,7 @@ def build_manifest(
             continue
 
         try:
-            entry = build_manifest_entry(item, model, skip_ai, openai_client)
+            entry = build_manifest_entry(item, model_provider, skip_ai, openai_client)
             manifest_entries.append(entry)
         except Exception as exc:
             logger.error("Failed to process %s: %s", item.name, exc)

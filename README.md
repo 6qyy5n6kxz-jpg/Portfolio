@@ -48,6 +48,14 @@ In your repository → **Settings** → **Secrets and variables** → **Actions*
 | `GOOGLE_DRIVE_FOLDER_ID` | The root folder ID (string after `/folders/` in the Drive URL). |
 | `OPENAI_API_KEY` | (Optional) Enables GPT-based tagging for richer, more accurate metadata. |
 
+Optional GitHub **repository variables** (Settings → Secrets and variables → Actions → Variables) let you fine-tune rate limiting:
+
+| Variable | Suggested value | Purpose |
+|----------|-----------------|---------|
+| `OPENAI_REQUEST_INTERVAL` | `20` (seconds) | Sleep between GPT calls if you have a low requests-per-minute quota. |
+| `OPENAI_MAX_RETRIES` | `5` | Number of times to retry GPT before falling back to TensorFlow. |
+| `OPENAI_BACKOFF_SECONDS` | `20` | How long to pause after a rate-limit response before retrying. |
+
 ### 3. Local configuration
 
 `public/config.json` controls UI-facing options. Only the gallery title and optional paging size remain:
