@@ -82,3 +82,17 @@ Set `SKIP_AI=1` for a faster dry run that reuses cached tags.
 | TensorFlow install takes too long | Add pip caching to the workflow (`cache: 'pip'` in `actions/setup-python`) or run on a faster runner. |
 
 Need more detail? See [README.md](README.md) for architecture and maintenance guidance.
+
+## Optional: instant rebuilds
+
+The manifest workflow also listens for a repository dispatch named `refresh-manifest`. Use it to regenerate the manifest whenever new images land in Drive:
+
+```bash
+curl -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <YOUR_TOKEN>" \
+  https://api.github.com/repos/6qyy5n6kxz-jpg/Portfolio/dispatches \
+  -d '{"event_type":"refresh-manifest"}'
+```
+
+Create a GitHub personal access token with the `repo` scope and keep it secure (e.g., Google Apps Script project properties). Call this endpoint from your automation whenever you upload new photos.

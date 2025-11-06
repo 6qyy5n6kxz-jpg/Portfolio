@@ -124,11 +124,29 @@ gh workflow run "Build Photo Gallery Manifest"
 
 or use the **Actions → Build Photo Gallery Manifest → Run workflow** button.
 
+### Instant refresh via API (optional)
+
+The workflow now listens for a `repository_dispatch` event. You can trigger it automatically whenever new photos are uploaded:
+
+1. **Create a GitHub personal access token** (classic or fine-grained) with the `repo` scope.
+2. Store it somewhere safe (for example, in Google Apps Script project properties).
+3. Call the dispatch API:
+
+```bash
+curl -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <YOUR_TOKEN>" \
+  https://api.github.com/repos/6qyy5n6kxz-jpg/Portfolio/dispatches \
+  -d '{"event_type":"refresh-manifest"}'
+```
+
+The workflow will rebuild the manifest immediately.
+
 ### Accelerating updates when new images are added
 
 1. **Scheduled build** (default): runs nightly at 02:00 UTC.
 2. **Push button**: trigger manually after a batch upload.
-3. **Webhook** (recommended): Create a Google Apps Script tied to your Drive folder that fires a `repository_dispatch` event to this repo whenever new files are added. The provided workflow will react and rebuild immediately.
+3. **Drive webhook** (recommended): Connect Google Apps Script or another automation tool to the Drive folder so it calls the dispatch API above whenever new images are added. Store the GitHub token in the script’s secure properties.
 
 ### Monitoring
 
