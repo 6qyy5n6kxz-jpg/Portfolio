@@ -2,3 +2,4 @@ tensorflow-cpu==2.15.0
 numpy==1.24.4
 Pillow==10.3.0
 requests==2.31.0
+openai>=1.45.0

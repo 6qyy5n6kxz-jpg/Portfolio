@@ -19,7 +19,8 @@
     "camera": "Canon EOS R5",
     "lens": "RF24-70mm F2.8 L IS USM",
     "dateTime": "2023:10:15 14:30:00",
-    "aiVersion": "2024-11-05"
+    "description": "Sunset light washes over distant mountains and a winding river beneath a star-filled sky.",
+    "aiVersion": "2025-03-01"
   },
   {
     "id": "example-file-id-2",
@@ -41,6 +42,7 @@
     "camera": "Sony A7R IV",
     "lens": "FE 90mm F2.8 Macro G OSS",
     "dateTime": "2023:04:20 09:15:00",
-    "aiVersion": "2024-11-05"
+    "description": "Vibrant pink blossoms emerge from a glass vase against a soft pastel backdrop.",
+    "aiVersion": "2025-03-01"
   }
 ]

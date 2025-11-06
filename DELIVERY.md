@@ -16,13 +16,13 @@ The project now consists of two cohesive parts: a static, filterable gallery and
 ### Data Pipeline
 - `scripts/build_manifest.py`
   - Recursively enumerates images in the Drive folder.
-  - TensorFlow MobileNetV2 tagging, EXIF parsing, colour analysis, difficulty scoring.
+  - Uses OpenAI Vision (when `OPENAI_API_KEY` is supplied) for high-accuracy tags, descriptions, and difficulty scoring, with TensorFlow MobileNet fallback.
   - Reuses cached results when `modifiedTime` and `aiVersion` match to save time/bandwidth.
-  - Writes rich metadata (tags, colour, width/height, camera, lens, season, AI version) to `public/manifest.json`.
+  - Writes rich metadata (tags, description, colour, width/height, camera, lens, season, AI version) to `public/manifest.json`.
 
 - `.github/workflows/build-manifest.yml`
   - Nightly schedule + manual dispatch.
-  - Installs Python deps via `requirements.txt` (tensorflow-cpu, Pillow, numpy, requests).
+  - Installs Python deps via `requirements.txt` (tensorflow-cpu, Pillow, numpy, requests, openai).
   - Runs the manifest builder and commits changes (`chore: update manifest [skip ci]`).
 
 ### Documentation
@@ -34,7 +34,7 @@ The project now consists of two cohesive parts: a static, filterable gallery and
 - `public/manifest.example.json` – demonstrates the enriched schema (tags, colour, difficulty, dimensions, camera/lens, `aiVersion`).
 
 ## 🧭 Next Steps
-1. Configure GitHub secrets: `GOOGLE_API_KEY`, `GOOGLE_DRIVE_FOLDER_ID`.
+1. Configure GitHub secrets: `GOOGLE_API_KEY`, `GOOGLE_DRIVE_FOLDER_ID`, and optionally `OPENAI_API_KEY` for GPT tagging.
 2. Trigger the “Build Photo Gallery Manifest” workflow to seed `public/manifest.json`.
 3. Enable GitHub Pages (main branch) and hard-refresh the site once the manifest commit lands.
 4. Optional: connect a Drive webhook/Apps Script to fire a `repository_dispatch` event for instant updates when new images are uploaded.

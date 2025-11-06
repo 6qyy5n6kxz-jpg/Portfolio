@@ -20,6 +20,7 @@ Repository → **Settings → Secrets and variables → Actions → New reposito
 |------|-------|
 | `GOOGLE_API_KEY` | Your API key |
 | `GOOGLE_DRIVE_FOLDER_ID` | The folder ID copied above |
+| `OPENAI_API_KEY` | *(Optional)* GPT API key for premium tagging accuracy |
 
 These secrets power the `scripts/build_manifest.py` workflow.
 
@@ -67,7 +68,7 @@ If you want to generate the manifest locally first:
 
 ```bash
 pip install -r requirements.txt
-GOOGLE_API_KEY=... GOOGLE_DRIVE_FOLDER_ID=... python scripts/build_manifest.py
+GOOGLE_API_KEY=... GOOGLE_DRIVE_FOLDER_ID=... OPENAI_API_KEY=sk-xxx python scripts/build_manifest.py
 ```
 
 Set `SKIP_AI=1` for a faster dry run that reuses cached tags.

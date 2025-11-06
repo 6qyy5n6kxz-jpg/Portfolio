@@ -11,8 +11,8 @@ Responsibilities
 3. Augment each asset with:
      • Season + year
      • Orientation, dimensions, primary color palette
-     • AI generated tags (3 – 5) using MobileNetV2
-     • Numeric difficulty score (1 – 5) based on classifier confidence
+     • AI generated tags (3 – 5) and description via OpenAI Vision (if configured)
+     • Numeric difficulty score (1 – 5)
      • Camera / lens metadata when available via EXIF
 4. Persist the static manifest to public/manifest.json so the frontend can load
    instantly without performing heavy client-side work.
@@ -21,6 +21,7 @@ Environment
 -----------
 GOOGLE_API_KEY           API key with Drive API v3 access.
 GOOGLE_DRIVE_FOLDER_ID   Root folder id that contains the portfolio images.
+OPENAI_API_KEY           (Optional) Enables GPT-based tagging for best accuracy.
 
 Optional knobs:
 DRIVE_PAGE_SIZE          Override pagination size (default 200).
@@ -41,16 +42,23 @@ import math
 import os
 import sys
 import time
-from collections import Counter
+import re
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
+from textwrap import dedent
 from typing import Dict, Iterable, List, Optional, Tuple
 
 import numpy as np
 import requests
 from PIL import Image, ImageStat, UnidentifiedImageError
 from PIL.ExifTags import TAGS as EXIF_TAGS
+
+# Optional OpenAI client for high-accuracy tagging
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - optional dependency
+    OpenAI = None  # type: ignore
 
 # Lazy imports for TensorFlow so we only pay the cost when needed.
 try:
@@ -69,10 +77,11 @@ except Exception:  # pragma: no cover - fallback if TF is not available
 
 # ==== CONSTANTS =============================================================
 
-AI_VERSION = "2024-11-05"  # bump to force reprocessing of all assets
+AI_VERSION = "2025-03-01"  # bump to force reprocessing of all assets
 SUPPORTED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "bmp"}
 DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files"
 OUTPUT_PATH = Path("public/manifest.json")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Slightly smaller thumbnail than the on-site display to minimise download.
 IMAGE_DOWNLOAD_SIZE = "w640"
@@ -144,6 +153,7 @@ class ManifestEntry:
     camera: str
     lens: str
     dateTime: Optional[str]
+    description: str = ""
     aiVersion: str = AI_VERSION
 
 
@@ -284,6 +294,113 @@ def nearest_palette_color(rgb: Tuple[float, float, float]) -> str:
     return best_name
 
 
+def format_tag(tag: str) -> str:
+    cleaned = re.sub(r"[\s_/,-]+", " ", str(tag)).strip()
+    return " ".join(word.capitalize() for word in cleaned.split() if word)
+
+
+def deduplicate_tags(tags: Iterable[str]) -> List[str]:
+    seen = set()
+    ordered: List[str] = []
+    for tag in tags:
+        formatted = format_tag(tag)
+        key = formatted.lower()
+        if formatted and key not in seen:
+            seen.add(key)
+            ordered.append(formatted)
+    return ordered
+
+
+def init_openai_client() -> Optional["OpenAI"]:
+    if not OPENAI_API_KEY:
+        return None
+    if OpenAI is None:
+        logger.warning("OPENAI_API_KEY provided but openai package is not installed; skipping GPT tagging.")
+        return None
+    try:
+        return OpenAI(api_key=OPENAI_API_KEY)
+    except Exception as exc:  # pragma: no cover - init errors
+        logger.warning("Failed to initialise OpenAI client: %s", exc)
+        return None
+
+
+def generate_openai_metadata(client: Optional["OpenAI"], item: DriveItem, image_url: str) -> Optional[dict]:
+    if client is None:
+        return None
+
+    palette_options = ", ".join(COLOR_PALETTE.keys())
+    prompt = dedent(
+        f"""
+        You label artwork for an online portfolio. Review the provided image and respond with **only** valid JSON using this schema:
+        {{
+          "tags": ["Tag 1", "Tag 2", "Tag 3"],
+          "difficulty": 3,
+          "primary_color": "Blue",
+          "description": "A single sentence under 160 characters."
+        }}
+
+        Guidance:
+        - Tags: 4 or 5 concise subjects (1-3 words each, Title Case), prioritising what painters would search for (e.g., "Starry Sky", "Wine Glasses").
+        - Difficulty: integer 1 (very easy) to 5 (most complex) based on the composition and detail.
+        - Primary color: choose one of [{palette_options}] representing the dominant palette viewers perceive.
+        - Description: one sentence highlighting the subject and vibe.
+        - Avoid generic filler like "Painting" or "Art" unless essential; favour meaningful content descriptors.
+        """
+    ).strip()
+
+    try:
+        response = client.responses.create(
+            model="gpt-4o-mini",
+            temperature=0.2,
+            max_output_tokens=400,
+            input=[
+                {
+                    "role": "system",
+                    "content": "You produce structured metadata that helps customers browse an art portfolio.",
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "input_text", "text": prompt},
+                        {"type": "input_image", "image_url": image_url},
+                    ],
+                },
+            ],
+        )
+        result_text = response.output_text.strip()
+        data = json.loads(result_text)
+    except Exception as exc:  # pragma: no cover - network/service errors
+        logger.warning("[OpenAI] %s: %s", item.name, exc)
+        return None
+
+    if not isinstance(data, dict):
+        logger.warning("[OpenAI] %s: unexpected response format", item.name)
+        return None
+
+    raw_tags = data.get("tags") or []
+    if isinstance(raw_tags, str):
+        raw_tags = [raw_tags]
+    tags = deduplicate_tags(raw_tags)[:5]
+
+    try:
+        difficulty = int(round(float(data.get("difficulty", 3))))
+    except Exception:
+        difficulty = 3
+    difficulty = max(1, min(5, difficulty))
+
+    raw_color = str(data.get("primary_color", "")).title()
+    color = raw_color if raw_color in COLOR_PALETTE else None
+
+    description = str(data.get("description", "")).strip()
+
+    return {
+        "tags": tags,
+        "difficulty": difficulty,
+        "primary_color": color,
+        "description": description,
+    }
+
+
 def compute_difficulty_score(tags: List[str], predictions: List[Tuple[str, float]]) -> int:
     if not predictions:
         return 3
@@ -383,6 +500,7 @@ def build_manifest_entry(
     item: DriveItem,
     model: Optional[MobileNetV2],
     skip_ai: bool,
+    openai_client: Optional["OpenAI"],
 ) -> ManifestEntry:
     logger.info("Processing %s", item.name)
     img = download_image(item.image_url)
@@ -393,7 +511,23 @@ def build_manifest_entry(
     difficulty = 3
     predictions: List[Tuple[str, float]] = []
 
-    if not skip_ai and model:
+    avg_rgb = compute_average_rgb(img)
+    color = nearest_palette_color(avg_rgb)
+    description = ""
+
+    if not skip_ai and openai_client:
+        metadata = generate_openai_metadata(
+            openai_client,
+            item,
+            f"https://lh3.googleusercontent.com/d/{item.id}=w1200",
+        )
+        if metadata:
+            tags = metadata.get("tags", [])
+            difficulty = metadata.get("difficulty", difficulty)
+            description = metadata.get("description", "")
+            color = metadata.get("primary_color") or color
+
+    if not tags and not skip_ai and model:
         prepared = resize_for_model(img)
         raw_preds = model.predict(prepared)
         decoded = decode_predictions(raw_preds, top=5)[0]
@@ -403,12 +537,7 @@ def build_manifest_entry(
             tags.extend([label for label, _ in predictions if label not in tags])
         tags = tags[:5]
         difficulty = compute_difficulty_score(tags, predictions)
-    else:
-        tags = []
-        difficulty = 3
-
-    avg_rgb = compute_average_rgb(img)
-    color = nearest_palette_color(avg_rgb)
+    tags = deduplicate_tags(tags)
 
     exif_data = img.getexif() or {}
     camera = extract_exif_field(exif_data, "Model") or "Unknown"
@@ -416,13 +545,21 @@ def build_manifest_entry(
     date_time_str = derive_datetime(exif_data, item.createdTime)
     season, year = derive_season_and_year(date_time_str or item.createdTime)
 
-    if season not in tags:
-        tags.append(season)
-    tags = [t for t, _ in Counter(tags).most_common()]
+    extras = [
+        season,
+        orientation,
+        color,
+        item.path.split("/")[-1] if item.path else "",
+    ]
+    for extra in extras:
+        if extra:
+            tags.append(extra)
+    tags = deduplicate_tags(tags)
     if len(tags) < 3:
-        for fallback in (orientation, color, "Photography"):
-            if fallback not in tags:
+        for fallback in ("Photography", camera.split(" ")[0], lens.split(" ")[0]):
+            if fallback:
                 tags.append(fallback)
+            tags = deduplicate_tags(tags)
             if len(tags) >= 3:
                 break
     tags = tags[:5]
@@ -447,6 +584,7 @@ def build_manifest_entry(
         camera=camera,
         lens=lens,
         dateTime=date_time_str,
+        description=description,
     )
 
 
@@ -458,7 +596,11 @@ def build_manifest(
     items = list(items)
     logger.info("Preparing manifest entries (AI %s)", "disabled" if skip_ai else "enabled")
 
-    # Decide if we need TensorFlow
+    openai_client = init_openai_client() if not skip_ai else None
+    if openai_client:
+        logger.info("OpenAI tagging enabled via OPENAI_API_KEY.")
+
+    # Decide if we need TensorFlow (fallback only)
     process_needed = [
         item
         for item in items
@@ -469,7 +611,7 @@ def build_manifest(
     logger.info("%s of %s assets require fresh analysis", len(process_needed), len(items))
 
     model: Optional[MobileNetV2] = None
-    if not skip_ai and process_needed:
+    if not skip_ai and process_needed and openai_client is None:
         model = load_tf_model()
 
     manifest_entries: List[ManifestEntry] = []
@@ -486,7 +628,7 @@ def build_manifest(
             continue
 
         try:
-            entry = build_manifest_entry(item, model, skip_ai)
+            entry = build_manifest_entry(item, model, skip_ai, openai_client)
             manifest_entries.append(entry)
         except Exception as exc:
             logger.error("Failed to process %s: %s", item.name, exc)
@@ -517,6 +659,7 @@ def build_manifest(
                         camera="Unknown",
                         lens="Unknown",
                         dateTime=None,
+                        description="",
                     )
                 )
 

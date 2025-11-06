@@ -130,6 +130,7 @@ async function processImageMetadata(manifest) {
             color: item.color || 'Neutral',
             camera: item.camera || 'Unknown',
             lens: item.lens || 'Unknown',
+            description: item.description || '',
             width: item.width || 0,
             height: item.height || 0,
             dateTime: item.dateTime || null
@@ -256,7 +257,7 @@ function applyFilters(options = {}) {
         if (filters.orientation.length > 0 && !filters.orientation.includes(item.orientation)) return false;
         if (filters.color.length > 0 && !filters.color.includes(item.color)) return false;
         if (filters.search) {
-            const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens} ${item.path || ''}`.toLowerCase();
+            const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens} ${item.path || ''} ${item.description || ''}`.toLowerCase();
             if (!searchStr.includes(filters.search)) return false;
         }
         return true;
@@ -332,6 +333,7 @@ function openModal(itemId) {
         ${item.season} • Difficulty ${item.difficulty}/5 • ${item.orientation}<br>
         ${item.path ? `Collection: ${escapeHtml(item.path)}<br>` : ''}
         Color: ${item.color}${item.year ? ` • Year ${item.year}` : ''}<br>
+        ${item.description ? `${escapeHtml(item.description)}<br>` : ''}
         ${item.camera} ${item.lens}<br>
         ${item.tags.map(tag => `<span class="tag ai-tag">${escapeHtml(tag)}</span>`).join('')}
         <br><a href="${item.view}" target="_blank" rel="noopener">View in Drive →</a>

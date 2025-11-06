@@ -4,7 +4,7 @@ A modern static gallery tailored for large photo catalogs ( ~1.4k images ) hoste
 
 ## Highlights
 
-- **Zero-runtime AI** – TensorFlow (server-side) classifies each image, storing 3‑5 descriptive tags, a difficulty score (1–5), and dominant color swatches directly in the manifest.
+- **Zero-runtime AI** – GPT-powered tagging (via `OPENAI_API_KEY`) generates rich descriptions, precise tags, and difficulty scores server-side; falls back to TensorFlow MobileNet if GPT is unavailable.
 - **Drive recursion** – The manifest builder walks your Drive tree (including subfolders) and retains relative paths so collections can stay organised.
 - **Fast client UX** – The browser only parses JSON; no EXIF reads, ML downloads, or Drive requests at runtime. Filters, search, and pagination stay instant even for thousands of assets.
 - **Automated publishing** – A scheduled GitHub Action regenerates the manifest, commits the results, and redeploys the static site. Hook it into Drive webhooks or a Google Apps Script to refresh immediately on new uploads.
@@ -23,7 +23,7 @@ A modern static gallery tailored for large photo catalogs ( ~1.4k images ) hoste
 ```
 
 1. `scripts/build_manifest.py` lists every image (recursively) in the Drive folder using an API key restricted to that folder.
-2. For items whose Drive `modifiedTime` or internal AI version changed, it downloads the asset, runs TensorFlow MobileNetV2 locally, extracts EXIF data with Pillow, infers colour and difficulty, and writes the enriched record.
+2. For items whose Drive `modifiedTime` or internal AI version changed, it downloads the asset, sends it to OpenAI Vision (or TensorFlow MobileNet fallback) for tagging, extracts EXIF data with Pillow, infers colour, and writes the enriched record.
 3. The workflow commits `public/manifest.json` back to the repo so GitHub Pages serves a fully tagged dataset.
 4. `app.js` simply loads the manifest, builds filters, and renders the grid – no client-side ML or Drive calls required.
 
@@ -46,6 +46,7 @@ In your repository → **Settings** → **Secrets and variables** → **Actions*
 |--------|-------------|
 | `GOOGLE_API_KEY` | API key generated above. |
 | `GOOGLE_DRIVE_FOLDER_ID` | The root folder ID (string after `/folders/` in the Drive URL). |
+| `OPENAI_API_KEY` | (Optional) Enables GPT-based tagging for richer, more accurate metadata. |
 
 ### 3. Local configuration
 
@@ -60,13 +61,13 @@ In your repository → **Settings** → **Secrets and variables** → **Actions*
 
 ### 4. Install dependencies (optional local runs)
 
-The manifest builder uses TensorFlow and Pillow. If you want to test locally:
+The manifest builder uses TensorFlow (fallback) and Pillow. Provide an `OPENAI_API_KEY` for the highest-quality GPT tagging. To test locally:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-GOOGLE_API_KEY=xxxx GOOGLE_DRIVE_FOLDER_ID=yyyy python scripts/build_manifest.py
+GOOGLE_API_KEY=xxxx GOOGLE_DRIVE_FOLDER_ID=yyyy OPENAI_API_KEY=sk-xxx python scripts/build_manifest.py
 ```
 
 When `SKIP_AI=1` the script skips heavy downloads and simply reuses cached metadata – handy for dry runs.
@@ -100,7 +101,8 @@ Each record in `public/manifest.json` follows this shape:
   "camera": "Canon EOS R5",
   "lens": "RF24-70mm F2.8 L IS USM",
   "dateTime": "2024:10:12 18:05:22",
-  "aiVersion": "2024-11-05"
+  "description": "A glowing sunset illuminates a winding river and village beneath a starry sky.",
+  "aiVersion": "2025-03-01"
 }
 ```
 
