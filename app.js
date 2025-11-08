@@ -31,10 +31,41 @@ let baseListenersAttached = false;
 let filtersToggleInitialized = false;
 let filtersToggleBtn = null;
 let filtersContainerEl = null;
+const THEME_STORAGE_KEY = 'gallery-theme';
 
 function getCollectionLabel(path = '') {
     const trimmed = (path || '').trim();
     return trimmed.length > 0 ? trimmed : 'Uncategorized';
+}
+
+function resolvePreferredTheme() {
+    const stored = localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function applyTheme(theme) {
+    const resolved = theme === 'light' ? 'light' : 'dark';
+    document.body.classList.toggle('theme-light', resolved === 'light');
+    document.body.classList.toggle('theme-dark', resolved === 'dark');
+    const toggleBtn = document.getElementById('themeToggleBtn');
+    if (toggleBtn) {
+        toggleBtn.textContent = resolved === 'light' ? 'Dark mode' : 'Light mode';
+        toggleBtn.setAttribute('aria-pressed', resolved === 'light' ? 'true' : 'false');
+    }
+    localStorage.setItem(THEME_STORAGE_KEY, resolved);
+}
+
+function initThemeToggle() {
+    applyTheme(resolvePreferredTheme());
+    const toggleBtn = document.getElementById('themeToggleBtn');
+    if (toggleBtn && !toggleBtn.dataset.bound) {
+        toggleBtn.addEventListener('click', () => {
+            const nextTheme = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+            applyTheme(nextTheme);
+        });
+        toggleBtn.dataset.bound = 'true';
+    }
 }
 
 // ==== INITIALIZATION ====
@@ -365,6 +396,7 @@ function closeModal() {
 function attachEventListeners() {
     if (baseListenersAttached) return;
     baseListenersAttached = true;
+    initThemeToggle();
     initFiltersToggle();
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {

@@ -27,32 +27,36 @@
             <span class="filters-toggle-icon">▾</span>
         </button>
         <div class="filters-container">
-            <div class="filter-group">
-                <label class="filter-label">Season:</label>
-                <div class="filter-chips" id="seasonFilters"></div>
+            <div class="filters-columns">
+                <div class="filter-column">
+                    <div class="filter-group">
+                        <label class="filter-label">Season:</label>
+                        <div class="filter-chips" id="seasonFilters"></div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Difficulty:</label>
+                        <div class="filter-chips" id="difficultyFilters"></div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Orientation:</label>
+                        <div class="filter-chips" id="orientationFilters"></div>
+                    </div>
+                </div>
+                <div class="filter-column">
+                    <div class="filter-group">
+                        <label class="filter-label">Collection:</label>
+                        <div class="filter-chips" id="collectionFilters"></div>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Color:</label>
+                        <div class="filter-chips" id="colorFilters"></div>
+                    </div>
+                </div>
             </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Difficulty:</label>
-                <div class="filter-chips" id="difficultyFilters"></div>
+            <div class="filters-actions">
+                <button id="clearFiltersBtn" class="clear-filters-btn">Clear All</button>
+                <button id="themeToggleBtn" class="theme-toggle-btn" aria-pressed="false">Light mode</button>
             </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Orientation:</label>
-                <div class="filter-chips" id="orientationFilters"></div>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Collection:</label>
-                <div class="filter-chips" id="collectionFilters"></div>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Color:</label>
-                <div class="filter-chips" id="colorFilters"></div>
-            </div>
-
-            <button id="clearFiltersBtn" class="clear-filters-btn">Clear All</button>
         </div>
     </header>
 
