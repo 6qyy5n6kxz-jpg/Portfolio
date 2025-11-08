@@ -44,6 +44,8 @@ Update `public/config.json` with your preferred title and optional page size:
 }
 ```
 
+> TIP: File names can be extensionless if Drive reports them as `image/*`. The manifest builder will detect those just like `.jpg` or `.png` files.
+
 ## 4. First manifest build
 
 You can wait for the nightly schedule, or trigger it manually:

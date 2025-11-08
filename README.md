@@ -22,7 +22,7 @@ A modern static gallery tailored for large photo catalogs ( ~1.4k images ) hoste
    Google Cloud Project            GitHub Actions Workflow           GitHub Pages Site
 ```
 
-1. `scripts/build_manifest.py` lists every image (recursively) in the Drive folder using an API key restricted to that folder.
+1. `scripts/build_manifest.py` lists every image (recursively) in the Drive folder using an API key restricted to that folder. Files are treated as images if either (a) their name ends with one of the supported extensions (`jpg`, `jpeg`, `png`, `gif`, `webp`, `bmp`) or (b) Drive reports their MIME type as `image/*`, so you can keep extensionless file names if you prefer.
 2. For items whose Drive `modifiedTime` or internal AI version changed, it downloads the asset, sends it to OpenAI Vision (or TensorFlow MobileNet fallback) for tagging, extracts EXIF data with Pillow, infers colour, and writes the enriched record.
 3. The workflow commits `public/manifest.json` back to the repo so GitHub Pages serves a fully tagged dataset.
 4. `app.js` simply loads the manifest, builds filters, and renders the grid – no client-side ML or Drive calls required.

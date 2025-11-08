@@ -79,6 +79,7 @@ except Exception:  # pragma: no cover - fallback if TF is not available
 
 AI_VERSION = "2025-03-20"  # bump to force reprocessing of all assets
 SUPPORTED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "bmp"}
+IMAGE_MIME_PREFIXES = ("image/",)
 DRIVE_API_URL = "https://www.googleapis.com/drive/v3/files"
 OUTPUT_PATH = Path("public/manifest.json")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -222,8 +223,11 @@ def list_drive_items(folder_id: str, api_key: str, path: Optional[List[str]] = N
                 )
                 if item.is_folder:
                     stack.append((item.id, current_path + [item.name]))
-                elif item.extension in SUPPORTED_EXTENSIONS:
-                    collected.append(item)
+                else:
+                    extension_ok = item.extension in SUPPORTED_EXTENSIONS
+                    mime_ok = any(item.mimeType.lower().startswith(prefix) for prefix in IMAGE_MIME_PREFIXES)
+                    if extension_ok or mime_ok:
+                        collected.append(item)
 
             page_token = payload.get("nextPageToken")
             if not page_token:
