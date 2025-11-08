@@ -27,29 +27,64 @@
             <span class="filters-toggle-icon">▾</span>
         </button>
         <div class="filters-container">
-            <div class="filters-columns">
-                <div class="filter-column">
-                    <div class="filter-group">
-                        <label class="filter-label">Season:</label>
-                        <div class="filter-chips" id="seasonFilters"></div>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Difficulty:</label>
-                        <div class="filter-chips" id="difficultyFilters"></div>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Orientation:</label>
-                        <div class="filter-chips" id="orientationFilters"></div>
+            <div class="filter-dropdowns">
+                <div class="filter-dropdown" data-filter="season">
+                    <button class="filter-dropdown-trigger" data-target="seasonFilters">
+                        Season <span class="filter-dropdown-count" id="seasonCount">All</span>
+                    </button>
+                    <div class="filter-dropdown-panel">
+                        <div class="filter-group">
+                            <label class="filter-label">Season:</label>
+                            <div class="filter-chips" id="seasonFilters"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="filter-column">
-                    <div class="filter-group">
-                        <label class="filter-label">Collection:</label>
-                        <div class="filter-chips" id="collectionFilters"></div>
+
+                <div class="filter-dropdown" data-filter="difficulty">
+                    <button class="filter-dropdown-trigger" data-target="difficultyFilters">
+                        Difficulty <span class="filter-dropdown-count" id="difficultyCount">All</span>
+                    </button>
+                    <div class="filter-dropdown-panel">
+                        <div class="filter-group">
+                            <label class="filter-label">Difficulty:</label>
+                            <div class="filter-chips" id="difficultyFilters"></div>
+                        </div>
                     </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Color:</label>
-                        <div class="filter-chips" id="colorFilters"></div>
+                </div>
+
+                <div class="filter-dropdown" data-filter="orientation">
+                    <button class="filter-dropdown-trigger" data-target="orientationFilters">
+                        Orientation <span class="filter-dropdown-count" id="orientationCount">All</span>
+                    </button>
+                    <div class="filter-dropdown-panel">
+                        <div class="filter-group">
+                            <label class="filter-label">Orientation:</label>
+                            <div class="filter-chips" id="orientationFilters"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown" data-filter="collection">
+                    <button class="filter-dropdown-trigger" data-target="collectionFilters">
+                        Collection <span class="filter-dropdown-count" id="collectionCount">All</span>
+                    </button>
+                    <div class="filter-dropdown-panel">
+                        <div class="filter-group">
+                            <label class="filter-label">Collection:</label>
+                            <div class="filter-chips" id="collectionFilters"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-dropdown" data-filter="color">
+                    <button class="filter-dropdown-trigger" data-target="colorFilters">
+                        Color <span class="filter-dropdown-count" id="colorCount">All</span>
+                    </button>
+                    <div class="filter-dropdown-panel">
+                        <div class="filter-group">
+                            <label class="filter-label">Color:</label>
+                            <div class="filter-chips" id="colorFilters"></div>
+                        </div>
                     </div>
                 </div>
             </div>

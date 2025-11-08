@@ -31,6 +31,7 @@ let baseListenersAttached = false;
 let filtersToggleInitialized = false;
 let filtersToggleBtn = null;
 let filtersContainerEl = null;
+let dropdownsInitialized = false;
 const THEME_STORAGE_KEY = 'gallery-theme';
 
 function getCollectionLabel(path = '') {
@@ -227,6 +228,9 @@ function buildFilters(options = {}) {
             searchInput.value = previousFilters.searchRaw || '';
         }
     }
+
+    updateFilterDropdownCounts(getActiveFilters());
+    refreshFiltersToggleState();
 }
 
 function renderFilterChips(containerId, values) {
@@ -265,6 +269,27 @@ function restoreActiveFilterChips(filters) {
             if (chip) chip.classList.add('active');
         });
     });
+}
+
+function updateFilterDropdownCounts(filters) {
+    const mapping = [
+        { id: 'seasonCount', values: filters.season },
+        { id: 'difficultyCount', values: filters.difficulty },
+        { id: 'orientationCount', values: filters.orientation },
+        { id: 'collectionCount', values: filters.collection },
+        { id: 'colorCount', values: filters.color }
+    ];
+    mapping.forEach(({ id, values }) => {
+        const target = document.getElementById(id);
+        if (!target) return;
+        target.textContent = formatFilterSummary(values);
+    });
+}
+
+function formatFilterSummary(values = []) {
+    if (!values || values.length === 0) return 'All';
+    if (values.length === 1) return values[0];
+    return `${values.length} selected`;
 }
 
 function getActiveFilters() {
@@ -316,7 +341,8 @@ function applyFilters(options = {}) {
         currentPage = 1;
     }
     renderGallery();
-    refreshFiltersToggleState();
+    updateFilterDropdownCounts(filters);
+    refreshFiltersToggleState(filters);
 }
 
 // ==== GALLERY RENDERING ====
@@ -398,6 +424,7 @@ function attachEventListeners() {
     baseListenersAttached = true;
     initThemeToggle();
     initFiltersToggle();
+    initFilterDropdowns();
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', () => applyFilters());
@@ -450,6 +477,7 @@ function initFiltersToggle() {
             filtersToggleBtn.style.display = 'none';
             filtersContainerEl.classList.remove('is-open');
             filtersToggleBtn.setAttribute('aria-expanded', 'true');
+            closeAllFilterDropdowns();
         }
         refreshFiltersToggleState();
     };
@@ -468,10 +496,50 @@ function initFiltersToggle() {
     filtersToggleInitialized = true;
 }
 
-function refreshFiltersToggleState() {
+function refreshFiltersToggleState(currentFilters = null) {
     if (!filtersToggleBtn) return;
-    const hasActiveFilters = document.querySelector('.filter-chip.active') !== null || (document.getElementById('searchInput')?.value ?? '').length > 0;
+    const filters = currentFilters || getActiveFilters();
+    const hasActiveFilters = filters.season.length > 0 ||
+        filters.difficulty.length > 0 ||
+        filters.orientation.length > 0 ||
+        filters.collection.length > 0 ||
+        filters.color.length > 0 ||
+        (filters.searchRaw?.length || 0) > 0;
     filtersToggleBtn.classList.toggle('has-active', hasActiveFilters);
+}
+
+function initFilterDropdowns() {
+    if (dropdownsInitialized) return;
+    const dropdowns = document.querySelectorAll('.filter-dropdown');
+    if (!dropdowns.length) return;
+
+    dropdowns.forEach(dropdown => {
+        const trigger = dropdown.querySelector('.filter-dropdown-trigger');
+        if (!trigger) return;
+        trigger.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile) {
+                dropdown.classList.toggle('open');
+            } else {
+                const alreadyOpen = dropdown.classList.contains('open');
+                closeAllFilterDropdowns();
+                if (!alreadyOpen) dropdown.classList.add('open');
+            }
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('.filter-dropdown')) {
+            closeAllFilterDropdowns();
+        }
+    });
+    dropdownsInitialized = true;
+}
+
+function closeAllFilterDropdowns() {
+    document.querySelectorAll('.filter-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
 }
 
 // ==== UTILITIES ====
