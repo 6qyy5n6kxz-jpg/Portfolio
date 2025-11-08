@@ -32,6 +32,11 @@ let filtersToggleInitialized = false;
 let filtersToggleBtn = null;
 let filtersContainerEl = null;
 
+function getCollectionLabel(path = '') {
+    const trimmed = (path || '').trim();
+    return trimmed.length > 0 ? trimmed : 'Uncategorized';
+}
+
 // ==== INITIALIZATION ====
 async function init() {
     try {
@@ -177,6 +182,8 @@ function buildFilters(options = {}) {
     renderFilterChips('difficultyFilters', difficultyValues);
     const orientations = [...new Set(allItems.map(i => i.orientation))].sort();
     renderFilterChips('orientationFilters', orientations);
+    const collections = [...new Set(allItems.map(i => getCollectionLabel(i.path)))].sort();
+    renderFilterChips('collectionFilters', collections);
     const colors = sortColorsForDisplay([...new Set(allItems.map(i => i.color || 'Neutral'))]);
     renderFilterChips('colorFilters', colors);
 
@@ -215,6 +222,7 @@ function restoreActiveFilterChips(filters) {
         { id: 'seasonFilters', values: filters.season },
         { id: 'difficultyFilters', values: filters.difficulty },
         { id: 'orientationFilters', values: filters.orientation },
+        { id: 'collectionFilters', values: filters.collection },
         { id: 'colorFilters', values: filters.color }
     ];
     mapping.forEach(({ id, values }) => {
@@ -235,6 +243,7 @@ function getActiveFilters() {
         season: [],
         difficulty: [],
         orientation: [],
+        collection: [],
         color: [],
         search: searchValue.toLowerCase(),
         searchRaw: searchValue
@@ -245,6 +254,7 @@ function getActiveFilters() {
         if (parent?.id === 'seasonFilters') filters.season.push(value);
         else if (parent?.id === 'difficultyFilters') filters.difficulty.push(value);
         else if (parent?.id === 'orientationFilters') filters.orientation.push(value);
+        else if (parent?.id === 'collectionFilters') filters.collection.push(value);
         else if (parent?.id === 'colorFilters') filters.color.push(value);
     });
     return filters;
@@ -258,6 +268,8 @@ function applyFilters(options = {}) {
         if (filters.season.length > 0 && !filters.season.includes(item.season)) return false;
         if (filters.difficulty.length > 0 && !filters.difficulty.includes(item.difficulty.toString())) return false;
         if (filters.orientation.length > 0 && !filters.orientation.includes(item.orientation)) return false;
+        const collectionLabel = getCollectionLabel(item.path);
+        if (filters.collection.length > 0 && !filters.collection.includes(collectionLabel)) return false;
         if (filters.color.length > 0 && !filters.color.includes(item.color)) return false;
         if (filters.search) {
             const searchStr = `${item.name} ${item.tags.join(' ')} ${item.camera} ${item.lens} ${item.path || ''} ${item.description || ''}`.toLowerCase();
