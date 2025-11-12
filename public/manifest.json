@@ -986,35 +986,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "11rIYJlF4eW-OAhPms37LpNuDaMAcUN7D",
-    "name": "Snow-H-I-O",
-    "path": "Seasonal & Holiday Themes",
-    "src": "https://lh3.googleusercontent.com/d/11rIYJlF4eW-OAhPms37LpNuDaMAcUN7D=w1200",
-    "view": "https://drive.google.com/file/d/11rIYJlF4eW-OAhPms37LpNuDaMAcUN7D/view?usp=drivesdk",
-    "createdTime": "2025-02-09T20:59:39.948Z",
-    "modifiedTime": "2025-02-22T15:50:38.479Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Snowmen",
-      "Winter",
-      "Holiday",
-      "Festive",
-      "Joyful"
-    ],
-    "difficulty": 2,
-    "color": "Blue",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 644,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T20:59:39.948Z",
-    "description": "Four cheerful snowmen celebrate winter with playful poses against a snowy blue backdrop.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1HibcHKhkxYHGQUAIrWbAsPO8LbvmJcM0",
     "name": "Snowman Wiine Glass",
     "path": "Seasonal & Holiday Themes",
@@ -29809,6 +29780,35 @@
     "lens": "Unknown",
     "dateTime": "2025-11-10T15:27:51.273Z",
     "description": "A cheerful snowman stands against a vibrant winter sunset, embodying the joy of the season.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1CZ6ownDYgmLNGMhtAaFTRyWyOuPHgPz_",
+    "name": "Snow-H-I-O",
+    "path": "Seasonal & Holiday Themes",
+    "src": "https://lh3.googleusercontent.com/d/1CZ6ownDYgmLNGMhtAaFTRyWyOuPHgPz_=w1200",
+    "view": "https://drive.google.com/file/d/1CZ6ownDYgmLNGMhtAaFTRyWyOuPHgPz_/view?usp=drivesdk",
+    "createdTime": "2025-11-11T20:48:55.208Z",
+    "modifiedTime": "2025-11-11T20:49:33.234Z",
+    "mimeType": "image/jpeg",
+    "season": "Fall",
+    "year": 2025,
+    "tags": [
+      "Snowmen",
+      "Winter Scene",
+      "Holiday Cheer",
+      "Festive Art",
+      "Fall"
+    ],
+    "difficulty": 2,
+    "color": "Blue",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 642,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-11-11T20:48:55.208Z",
+    "description": "Four cheerful snowmen celebrate winter with playful expressions against a snowy blue backdrop.",
     "aiVersion": "2025-03-20"
   },
   {
