@@ -14036,35 +14036,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1Q6xQYCWWJWpid0eKj8wutv_w8llDMr-b",
-    "name": "Watercolor Landspace",
-    "path": "Abstract & Artistic",
-    "src": "https://lh3.googleusercontent.com/d/1Q6xQYCWWJWpid0eKj8wutv_w8llDMr-b=w1200",
-    "view": "https://drive.google.com/file/d/1Q6xQYCWWJWpid0eKj8wutv_w8llDMr-b/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:06:41.881Z",
-    "modifiedTime": "2025-02-21T15:30:58.354Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Winter Landscape",
-      "Pine Trees",
-      "Reflection",
-      "Snow",
-      "Sunset"
-    ],
-    "difficulty": 3,
-    "color": "Blue",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 646,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:06:41.881Z",
-    "description": "A serene winter landscape featuring silhouetted pine trees against a softly colored sunset reflection on water.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1Vr0O3JfWe4ATvQ1FIgOKAaIvZKDyLYNi",
     "name": "Mermaid",
     "path": "Abstract & Artistic",
@@ -29954,6 +29925,35 @@
     "lens": "Unknown",
     "dateTime": "2025-12-03T13:31:11.095Z",
     "description": "A charming Highland cow in a Santa hat, surrounded by festive lights against a snowy blue background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1f8o5Qs66ISjHWXy4dAlBHR-FGkNLJBEh",
+    "name": "Watercolor Landscape",
+    "path": "Nature & Landscapes",
+    "src": "https://lh3.googleusercontent.com/d/1f8o5Qs66ISjHWXy4dAlBHR-FGkNLJBEh=w1200",
+    "view": "https://drive.google.com/file/d/1f8o5Qs66ISjHWXy4dAlBHR-FGkNLJBEh/view?usp=drivesdk",
+    "createdTime": "2025-12-15T14:36:50.266Z",
+    "modifiedTime": "2025-12-15T14:37:02.239Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Winter Landscape",
+      "Pine Trees",
+      "Reflection",
+      "Snow",
+      "Aurora"
+    ],
+    "difficulty": 3,
+    "color": "Blue",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 640,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-12-15T14:36:50.266Z",
+    "description": "A serene winter scene featuring silhouetted pine trees against a soft, colorful sky reflected in calm waters.",
     "aiVersion": "2025-03-20"
   },
   {
