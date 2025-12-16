@@ -1102,35 +1102,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1BVdBYWOC0-doDl5ougmsKwp8QSLV9W7L",
-    "name": "Winter on the Farm",
-    "path": "Seasonal & Holiday Themes",
-    "src": "https://lh3.googleusercontent.com/d/1BVdBYWOC0-doDl5ougmsKwp8QSLV9W7L=w1200",
-    "view": "https://drive.google.com/file/d/1BVdBYWOC0-doDl5ougmsKwp8QSLV9W7L/view?usp=drivesdk",
-    "createdTime": "2025-02-09T20:59:43.978Z",
-    "modifiedTime": "2025-02-21T16:22:06.970Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Red Barn",
-      "Snowy Landscape",
-      "Cardinal Bird",
-      "Winter Scene",
-      "Fencing"
-    ],
-    "difficulty": 2,
-    "color": "Red",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 658,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T20:59:43.978Z",
-    "description": "A serene winter landscape featuring a red barn and a cardinal amidst falling snow.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1tESIXbBVudJd-ZHIOaiuU7b_VBepPYLv",
     "name": "Blue Tree Date Night CA",
     "path": "Romantic & Sentimental",
@@ -29954,6 +29925,35 @@
     "lens": "Unknown",
     "dateTime": "2025-12-15T14:36:50.266Z",
     "description": "A serene winter scene featuring silhouetted pine trees against a soft, colorful sky reflected in calm waters.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1HeirM2-10ciGb4SYajdE2ssCFPjp2xdX",
+    "name": "Winter on the Farm",
+    "path": "Nature & Landscapes",
+    "src": "https://lh3.googleusercontent.com/d/1HeirM2-10ciGb4SYajdE2ssCFPjp2xdX=w1200",
+    "view": "https://drive.google.com/file/d/1HeirM2-10ciGb4SYajdE2ssCFPjp2xdX/view?usp=drivesdk",
+    "createdTime": "2025-12-15T20:37:50.883Z",
+    "modifiedTime": "2025-12-15T20:38:01.036Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Red Barn",
+      "Snowy Landscape",
+      "Cardinal Bird",
+      "Winter Scene",
+      "Winter"
+    ],
+    "difficulty": 2,
+    "color": "Blue",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 644,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-12-15T20:37:50.883Z",
+    "description": "A serene winter landscape featuring a red barn and a cardinal amidst falling snow.",
     "aiVersion": "2025-03-20"
   },
   {
