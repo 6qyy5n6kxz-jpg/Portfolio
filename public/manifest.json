@@ -8932,35 +8932,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "17TXION2epJ_XFAa9IBaOSwTNfAzQIJYI",
-    "name": "Red Visitors",
-    "path": "Miscellaneous",
-    "src": "https://lh3.googleusercontent.com/d/17TXION2epJ_XFAa9IBaOSwTNfAzQIJYI=w1200",
-    "view": "https://drive.google.com/file/d/17TXION2epJ_XFAa9IBaOSwTNfAzQIJYI/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:04:15.727Z",
-    "modifiedTime": "2025-02-20T16:00:57.697Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Cardinals",
-      "Winter Scene",
-      "Snowfall",
-      "Bare Branches",
-      "Winter"
-    ],
-    "difficulty": 3,
-    "color": "Gray",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 642,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:04:15.727Z",
-    "description": "Two vibrant red cardinals perched on a snowy branch amidst a tranquil winter landscape.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1gt2Jl8W4F8-tEtitgP7OWzSgxEznpyNX",
     "name": "Le Chat Noir",
     "path": "Miscellaneous",
@@ -29983,6 +29954,35 @@
     "lens": "Unknown",
     "dateTime": "2025-12-17T16:39:47.939Z",
     "description": "A serene winter landscape featuring a vibrant cardinal amidst snow-covered trees viewed through a window.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1Ti3yJEjjc9m69mFYBxP46xPRDq0SCRcJ",
+    "name": "Red Visitors",
+    "path": "Animals & Wildlife",
+    "src": "https://lh3.googleusercontent.com/d/1Ti3yJEjjc9m69mFYBxP46xPRDq0SCRcJ=w1200",
+    "view": "https://drive.google.com/file/d/1Ti3yJEjjc9m69mFYBxP46xPRDq0SCRcJ/view?usp=drivesdk",
+    "createdTime": "2025-12-19T14:25:04.769Z",
+    "modifiedTime": "2025-12-19T14:25:14.998Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Cardinals",
+      "Winter Scene",
+      "Snowfall",
+      "Branches",
+      "Nature"
+    ],
+    "difficulty": 3,
+    "color": "Red",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 642,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-12-19T14:25:04.769Z",
+    "description": "Two vibrant cardinals perched on bare branches amidst a serene winter snowfall.",
     "aiVersion": "2025-03-20"
   },
   {
