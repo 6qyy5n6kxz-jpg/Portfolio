@@ -77,6 +77,7 @@ async function init() {
         document.getElementById('galleryTitle').textContent = config.title || 'Photo Gallery';
         const manifest = await loadManifestWithCache();
         allItems = await processImageMetadata(manifest);
+        allItems.sort((a, b) => (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity: 'base', numeric: true }));
         filteredItems = [...allItems];
         buildFilters();
         renderGallery();

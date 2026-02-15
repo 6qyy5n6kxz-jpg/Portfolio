@@ -821,9 +821,17 @@ def main() -> None:
     existing = load_existing_manifest()
     manifest_entries = build_manifest(items, existing, skip_ai=skip_ai)
 
+    manifest_records = [asdict(entry) for entry in manifest_entries]
+    manifest_records.sort(
+        key=lambda r: (
+            (r.get("path") or "").lower(),
+            (r.get("name") or "").lower(),
+        )
+    )
+
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with OUTPUT_PATH.open("w", encoding="utf-8") as fh:
-        json.dump([asdict(entry) for entry in manifest_entries], fh, indent=2)
+        json.dump(manifest_records, fh, indent=2)
 
     logger.info("Manifest written to %s", OUTPUT_PATH)
     logger.info("Total entries: %s", len(manifest_entries))
