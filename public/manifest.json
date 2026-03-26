@@ -30479,35 +30479,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR",
-    "name": "Garden",
-    "path": "Nature & Landscapes",
-    "src": "https://lh3.googleusercontent.com/d/1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR=w1200",
-    "view": "https://drive.google.com/file/d/1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:08:59.011Z",
-    "modifiedTime": "2025-09-15T14:15:10.714Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Lush Landscape",
-      "Pathway",
-      "Trees",
-      "Floral",
-      "Sunlight"
-    ],
-    "difficulty": 3,
-    "color": "Green",
-    "orientation": "Landscape",
-    "width": 512,
-    "height": 402,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:08:59.011Z",
-    "description": "A serene landscape featuring a winding path through vibrant greenery and blooming flowers under soft sunlight.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1y8pbc3kdX20eBaUc2in5scDzMePeCDHe",
     "name": "Garden Party",
     "path": "Nature & Landscapes",
@@ -30592,6 +30563,35 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:09:11.694Z",
     "description": "A vibrant sunset scene featuring a bridge silhouetted against a colorful sky and city lights reflecting on the water.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR",
+    "name": "Glowing Garden Path",
+    "path": "Nature & Landscapes",
+    "src": "https://lh3.googleusercontent.com/d/1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR=w1200",
+    "view": "https://drive.google.com/file/d/1JHNcFvPq0DPzmieYAQ-O00BeM4Chi6PR/view?usp=drivesdk",
+    "createdTime": "2025-02-09T21:08:59.011Z",
+    "modifiedTime": "2026-03-26T17:59:12.010Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Serene Landscape",
+      "Pathway",
+      "Colorful Flowers",
+      "Trees",
+      "Nature"
+    ],
+    "difficulty": 2,
+    "color": "Green",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 402,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T21:08:59.011Z",
+    "description": "A tranquil landscape featuring a winding path surrounded by vibrant flowers and lush greenery.",
     "aiVersion": "2025-03-20"
   },
   {
