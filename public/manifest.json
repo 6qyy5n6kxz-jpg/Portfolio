@@ -1218,6 +1218,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq",
+    "name": "Golden Glow",
+    "path": "Abstract & Artistic",
+    "src": "https://lh3.googleusercontent.com/d/1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq=w1200",
+    "view": "https://drive.google.com/file/d/1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq/view?usp=drivesdk",
+    "createdTime": "2026-04-01T15:33:52.452Z",
+    "modifiedTime": "2026-04-01T15:34:04.451Z",
+    "mimeType": "image/jpeg",
+    "season": "Spring",
+    "year": 2026,
+    "tags": [
+      "Portrait",
+      "Fashion",
+      "Bold Colors",
+      "Expression",
+      "Spring"
+    ],
+    "difficulty": 2,
+    "color": "Red",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 654,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-04-01T15:33:52.452Z",
+    "description": "A vibrant portrait of a woman in a red beret, exuding confidence against a bright yellow background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "10_HAOQAKpu0fmKcYxO1qQHqR8TWFrKqO",
     "name": "Happy Dream",
     "path": "Abstract & Artistic",
@@ -23516,6 +23545,35 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:02:33.026Z",
     "description": "A serene scene of sea turtles swimming under a glowing moon, surrounded by vibrant underwater plants.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1ZAdT-dqGv1xAaKprCXnZ9pwx66amnUiZ",
+    "name": "Force Within",
+    "path": "Miscellaneous",
+    "src": "https://lh3.googleusercontent.com/d/1ZAdT-dqGv1xAaKprCXnZ9pwx66amnUiZ=w1200",
+    "view": "https://drive.google.com/file/d/1ZAdT-dqGv1xAaKprCXnZ9pwx66amnUiZ/view?usp=drivesdk",
+    "createdTime": "2026-04-01T15:32:19.953Z",
+    "modifiedTime": "2026-04-01T15:32:36.713Z",
+    "mimeType": "image/jpeg",
+    "season": "Spring",
+    "year": 2026,
+    "tags": [
+      "Character Portrait",
+      "Fantasy Art",
+      "Blue Light",
+      "Face Detail",
+      "Vibrant Colors"
+    ],
+    "difficulty": 4,
+    "color": "Blue",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 639,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-04-01T15:32:19.953Z",
+    "description": "A striking portrait of a character with bold colors and intricate patterns, illuminated by a dramatic blue light.",
     "aiVersion": "2025-03-20"
   },
   {
