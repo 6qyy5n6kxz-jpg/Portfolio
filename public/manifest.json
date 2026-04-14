@@ -2958,6 +2958,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV",
+    "name": "Starry Night Skyline",
+    "path": "Abstract & Artistic",
+    "src": "https://lh3.googleusercontent.com/d/1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV=w1200",
+    "view": "https://drive.google.com/file/d/1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV/view?usp=drivesdk",
+    "createdTime": "2025-02-09T21:06:46.313Z",
+    "modifiedTime": "2026-04-14T16:01:59.231Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Starry Night",
+      "City Skyline",
+      "Swirling Sky",
+      "Moonlight",
+      "Water Reflection"
+    ],
+    "difficulty": 4,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 407,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T21:06:46.313Z",
+    "description": "A vibrant city skyline under a swirling starry sky, illuminated by bright moons reflecting on the water.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "18bKKhia-bi6AeWuFRBeE2njiROi4cg9i",
     "name": "Starry Night Sunflower",
     "path": "Abstract & Artistic",
@@ -3013,35 +3042,6 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:05:35.943Z",
     "description": "A vibrant night sky filled with swirling stars and a prominent cypress tree, evoking a sense of wonder.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV",
-    "name": "Starry Night Toledo",
-    "path": "Abstract & Artistic",
-    "src": "https://lh3.googleusercontent.com/d/1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV=w1200",
-    "view": "https://drive.google.com/file/d/1X89mICKWgJH6bKksiLDUNuQmSxk6P5cV/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:06:46.313Z",
-    "modifiedTime": "2025-02-20T14:46:16.811Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Starry Sky",
-      "Cityscape",
-      "Night Scene",
-      "Swirling Clouds",
-      "Water Reflection"
-    ],
-    "difficulty": 4,
-    "color": "Blue",
-    "orientation": "Landscape",
-    "width": 512,
-    "height": 407,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:06:46.313Z",
-    "description": "A vibrant night sky filled with swirling clouds and bright stars over a silhouetted city skyline.",
     "aiVersion": "2025-03-20"
   },
   {
@@ -20822,35 +20822,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs",
-    "name": "Live by the Sea - Love by the Moon Date Night",
-    "path": "Date Night",
-    "src": "https://lh3.googleusercontent.com/d/1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs=w1200",
-    "view": "https://drive.google.com/file/d/1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:07:40.561Z",
-    "modifiedTime": "2025-09-09T20:33:06.910Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Tropical Sunset",
-      "Palm Trees",
-      "Moonlit Night",
-      "Ocean Reflection",
-      "Winter"
-    ],
-    "difficulty": 3,
-    "color": "Blue",
-    "orientation": "Landscape",
-    "width": 512,
-    "height": 320,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:07:40.561Z",
-    "description": "A serene tropical scene featuring palm trees against a vibrant sunset and a glowing moon.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1yYeiEQSGH_pZw_l-uAa5V3frPVedWC6B",
     "name": "Love Birds Date Night",
     "path": "Date Night",
@@ -20877,6 +20848,35 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:07:20.771Z",
     "description": "Two silhouetted birds sit on a branch adorned with hearts against a vibrant, swirling background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs",
+    "name": "Love by the Moon",
+    "path": "Date Night",
+    "src": "https://lh3.googleusercontent.com/d/1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs=w1200",
+    "view": "https://drive.google.com/file/d/1glgUTY4Ptfi3bnKotcDk-aItWpAgTKCs/view?usp=drivesdk",
+    "createdTime": "2025-02-09T21:07:40.561Z",
+    "modifiedTime": "2026-04-14T16:25:28.888Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Tropical Sunset",
+      "Palm Trees",
+      "Moonlight",
+      "Ocean Reflection",
+      "Winter"
+    ],
+    "difficulty": 3,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 320,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T21:07:40.561Z",
+    "description": "A serene tropical scene featuring palm trees silhouetted against a vibrant sunset and a glowing moon.",
     "aiVersion": "2025-03-20"
   },
   {
