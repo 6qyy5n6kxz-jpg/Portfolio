@@ -1219,12 +1219,12 @@
   },
   {
     "id": "1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq",
-    "name": "Golden Glow",
+    "name": "Golden Glow Beauty",
     "path": "Abstract & Artistic",
     "src": "https://lh3.googleusercontent.com/d/1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq=w1200",
     "view": "https://drive.google.com/file/d/1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq/view?usp=drivesdk",
     "createdTime": "2026-04-01T15:33:52.452Z",
-    "modifiedTime": "2026-04-01T15:34:04.451Z",
+    "modifiedTime": "2026-04-20T13:43:28.511Z",
     "mimeType": "image/jpeg",
     "season": "Spring",
     "year": 2026,
@@ -1235,7 +1235,7 @@
       "Expression",
       "Spring"
     ],
-    "difficulty": 2,
+    "difficulty": 3,
     "color": "Red",
     "orientation": "Portrait",
     "width": 512,
@@ -1243,7 +1243,7 @@
     "camera": "Unknown",
     "lens": "Unknown",
     "dateTime": "2026-04-01T15:33:52.452Z",
-    "description": "A vibrant portrait of a woman in a red beret, exuding confidence against a bright yellow background.",
+    "description": "A vibrant portrait of a woman in a red outfit, exuding confidence against a bright yellow background.",
     "aiVersion": "2025-03-20"
   },
   {
@@ -19982,12 +19982,12 @@
   },
   {
     "id": "1TTTiXivtJaR8gpSMV0Y0p6fJnIo1s8wt",
-    "name": "So mushroom in my heart",
+    "name": "So Mushroom in My Heart",
     "path": "Cookies & Canvas",
     "src": "https://lh3.googleusercontent.com/d/1TTTiXivtJaR8gpSMV0Y0p6fJnIo1s8wt=w1200",
     "view": "https://drive.google.com/file/d/1TTTiXivtJaR8gpSMV0Y0p6fJnIo1s8wt/view?usp=drivesdk",
     "createdTime": "2025-03-03T20:44:42.816Z",
-    "modifiedTime": "1980-01-01T05:00:00.000Z",
+    "modifiedTime": "2026-04-20T12:42:43.153Z",
     "mimeType": "image/png",
     "season": "Spring",
     "year": 2025,
@@ -19995,18 +19995,18 @@
       "Mushroom",
       "Cute Character",
       "Butterfly",
-      "Night Sky",
-      "Heart"
+      "Fantasy",
+      "Nature"
     ],
     "difficulty": 2,
-    "color": "Black",
+    "color": "Yellow",
     "orientation": "Portrait",
     "width": 512,
     "height": 659,
     "camera": "Unknown",
     "lens": "Unknown",
     "dateTime": "2025-03-03T20:44:42.816Z",
-    "description": "A whimsical mushroom character holds a heart, surrounded by colorful orbs and a butterfly in a starry night setting.",
+    "description": "A whimsical mushroom character holds a heart, surrounded by colorful bubbles and a butterfly in a dreamy setting.",
     "aiVersion": "2025-03-20"
   },
   {
