@@ -1218,6 +1218,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX",
+    "name": "Golden Fields Forever",
+    "path": "Abstract & Artistic",
+    "src": "https://lh3.googleusercontent.com/d/1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX=w1200",
+    "view": "https://drive.google.com/file/d/1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX/view?usp=drivesdk",
+    "createdTime": "2025-02-09T21:06:52.260Z",
+    "modifiedTime": "2026-05-12T14:41:00.340Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Cypress Trees",
+      "Blue Mountains",
+      "Golden Fields",
+      "Cloudy Sky",
+      "Winter"
+    ],
+    "difficulty": 3,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 415,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T21:06:52.260Z",
+    "description": "A vibrant landscape featuring cypress trees against rolling blue mountains and golden fields under a dynamic sky.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1QO-bXN8cusTmkYBXznDrnYl19hOPuCJq",
     "name": "Golden Glow Beauty",
     "path": "Abstract & Artistic",
@@ -4985,35 +5014,6 @@
     "lens": "Unknown",
     "dateTime": "2025-08-24T19:39:21.543Z",
     "description": "A vibrant arrangement of sunflowers in a decorative vase against a bright blue backdrop.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX",
-    "name": "Van Gogh's Wheat Field",
-    "path": "Abstract & Artistic",
-    "src": "https://lh3.googleusercontent.com/d/1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX=w1200",
-    "view": "https://drive.google.com/file/d/1ErnhRSkGB0MXje7DdTc0LFuoldL0jHrX/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:06:52.260Z",
-    "modifiedTime": "2025-02-20T15:19:00.329Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Cypress Trees",
-      "Rolling Hills",
-      "Blue Sky",
-      "Golden Fields",
-      "Winter"
-    ],
-    "difficulty": 3,
-    "color": "Blue",
-    "orientation": "Landscape",
-    "width": 512,
-    "height": 415,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:06:52.260Z",
-    "description": "A vibrant landscape featuring cypress trees against a backdrop of rolling hills and a bright blue sky.",
     "aiVersion": "2025-03-20"
   },
   {
