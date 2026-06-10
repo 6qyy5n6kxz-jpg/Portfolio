@@ -5858,35 +5858,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1k3KVKfMTXpuZcNsTb0-lyPS3dVac5PD5",
-    "name": "Wish I Was There",
-    "path": "Abstract & Artistic",
-    "src": "https://lh3.googleusercontent.com/d/1k3KVKfMTXpuZcNsTb0-lyPS3dVac5PD5=w1200",
-    "view": "https://drive.google.com/file/d/1k3KVKfMTXpuZcNsTb0-lyPS3dVac5PD5/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:05:50.876Z",
-    "modifiedTime": "2025-09-15T16:58:08.876Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Beach Path",
-      "Ocean View",
-      "Coastal Landscape",
-      "Nature Scene",
-      "Winter"
-    ],
-    "difficulty": 2,
-    "color": "Blue",
-    "orientation": "Landscape",
-    "width": 512,
-    "height": 413,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:05:50.876Z",
-    "description": "A serene beach path leads to a tranquil ocean under a bright sky.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1rFp7VLoHR2wcalBLUWHYJ9o8lhpa-Z6T",
     "name": "Wish You Were Beer CA",
     "path": "Abstract & Artistic",
@@ -7599,19 +7570,19 @@
   },
   {
     "id": "1rhwWCcajyJskqibY0xctbZWgFSe82RNo",
-    "name": "highland cow DC",
+    "name": "Highland Cow",
     "path": "Animals & Wildlife",
     "src": "https://lh3.googleusercontent.com/d/1rhwWCcajyJskqibY0xctbZWgFSe82RNo=w1200",
     "view": "https://drive.google.com/file/d/1rhwWCcajyJskqibY0xctbZWgFSe82RNo/view?usp=drivesdk",
     "createdTime": "2025-08-13T01:36:37.175Z",
-    "modifiedTime": "2025-08-13T01:35:57.000Z",
+    "modifiedTime": "2026-06-10T13:11:07.495Z",
     "mimeType": "image/jpeg",
     "season": "Summer",
     "year": 2025,
     "tags": [
       "Highland Cow",
       "Floral",
-      "Colorful Hair",
+      "Colorful Fur",
       "Animal Portrait",
       "Summer"
     ],
@@ -7623,7 +7594,7 @@
     "camera": "Unknown",
     "lens": "Unknown",
     "dateTime": "2025-08-13T01:36:37.175Z",
-    "description": "A whimsical portrait of a Highland cow adorned with flowers and vibrant, colorful hair.",
+    "description": "A whimsical portrayal of a Highland cow adorned with flowers and vibrant, colorful fur.",
     "aiVersion": "2025-03-20"
   },
   {
