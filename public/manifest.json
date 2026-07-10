@@ -30682,6 +30682,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw",
+    "name": "Golden Beacon",
+    "path": "Nature & Landscapes",
+    "src": "https://lh3.googleusercontent.com/d/1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw=w1200",
+    "view": "https://drive.google.com/file/d/1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw/view?usp=drivesdk",
+    "createdTime": "2025-02-09T21:09:00.013Z",
+    "modifiedTime": "2026-07-10T14:51:21.791Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Lighthouse",
+      "Sunset",
+      "Water Reflection",
+      "Silhouette",
+      "Winter"
+    ],
+    "difficulty": 3,
+    "color": "Orange",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 645,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T21:09:00.013Z",
+    "description": "A serene sunset scene featuring a lighthouse silhouetted against vibrant orange skies.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1exuUW_VgZxdqJ3BMnDtZmneYpYKusoRr",
     "name": "Golden Horizon",
     "path": "Nature & Landscapes",
@@ -31491,35 +31520,6 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:08:22.389Z",
     "description": "A serene coastal scene featuring a lighthouse surrounded by sunflowers and birds in a tranquil atmosphere.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw",
-    "name": "Lighthouse Sunset_CB",
-    "path": "Nature & Landscapes",
-    "src": "https://lh3.googleusercontent.com/d/1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw=w1200",
-    "view": "https://drive.google.com/file/d/1Z25jSp3hTdQCymdqzOALI3tNvHWVrorw/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:09:00.013Z",
-    "modifiedTime": "2025-02-09T22:38:06.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Lighthouse",
-      "Sunset",
-      "Water Reflection",
-      "Silhouette",
-      "Winter"
-    ],
-    "difficulty": 3,
-    "color": "Orange",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 645,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:09:00.013Z",
-    "description": "A serene sunset scene featuring a lighthouse silhouetted against vibrant orange skies and calm waters.",
     "aiVersion": "2025-03-20"
   },
   {
