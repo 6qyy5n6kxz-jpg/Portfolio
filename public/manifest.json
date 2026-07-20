@@ -32770,6 +32770,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1XTTVShDIKd4WeSuSZem12FuMJzkoAHB4",
+    "name": "Summer Hydrangeas",
+    "path": "Nature & Landscapes",
+    "src": "https://lh3.googleusercontent.com/d/1XTTVShDIKd4WeSuSZem12FuMJzkoAHB4=w1200",
+    "view": "https://drive.google.com/file/d/1XTTVShDIKd4WeSuSZem12FuMJzkoAHB4/view?usp=drivesdk",
+    "createdTime": "2026-07-20T13:05:39.439Z",
+    "modifiedTime": "2026-07-20T13:04:59.000Z",
+    "mimeType": "image/jpeg",
+    "season": "Summer",
+    "year": 2026,
+    "tags": [
+      "Hydrangeas",
+      "Floral Arrangement",
+      "Blue Flowers",
+      "Glass Jar",
+      "Summer"
+    ],
+    "difficulty": 2,
+    "color": "Blue",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 657,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-07-20T13:05:39.439Z",
+    "description": "A vibrant bouquet of blue hydrangeas in a clear glass jar, set against a soft gray background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1aqbyVuqruvWsnBg0FUwFDWg2UyKCIorl",
     "name": "Summer Sunset tree BL",
     "path": "Nature & Landscapes",
@@ -37262,35 +37291,6 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:00:06.350Z",
     "description": "A delicate pink flower with vibrant leaves against a serene blue background.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "1ZAqSIrQSh3M6-ic5MUs5zBf8PFg2iAgB",
-    "name": "puffy-flowers_C&C",
-    "path": "Romantic & Sentimental",
-    "src": "https://lh3.googleusercontent.com/d/1ZAqSIrQSh3M6-ic5MUs5zBf8PFg2iAgB=w1200",
-    "view": "https://drive.google.com/file/d/1ZAqSIrQSh3M6-ic5MUs5zBf8PFg2iAgB/view?usp=drivesdk",
-    "createdTime": "2025-02-09T21:00:11.706Z",
-    "modifiedTime": "2025-02-09T22:42:38.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Hydrangeas",
-      "Blue Flowers",
-      "Glass Jar",
-      "Still Life",
-      "Winter"
-    ],
-    "difficulty": 2,
-    "color": "Blue",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 675,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T21:00:11.706Z",
-    "description": "A serene still life featuring vibrant blue hydrangeas in a glass jar against a muted background.",
     "aiVersion": "2025-03-20"
   },
   {
