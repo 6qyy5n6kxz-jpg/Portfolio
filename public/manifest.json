@@ -6786,6 +6786,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC",
+    "name": "Cat & Spider",
+    "path": "Animals & Wildlife",
+    "src": "https://lh3.googleusercontent.com/d/1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC=w1200",
+    "view": "https://drive.google.com/file/d/1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC/view?usp=drivesdk",
+    "createdTime": "2025-03-12T14:02:35.420Z",
+    "modifiedTime": "2026-08-21T13:03:18.727Z",
+    "mimeType": "image/jpeg",
+    "season": "Spring",
+    "year": 2025,
+    "tags": [
+      "Black Cat",
+      "Spider",
+      "Web",
+      "Green Background",
+      "Halloween"
+    ],
+    "difficulty": 3,
+    "color": "Green",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 642,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-03-12T14:02:35.420Z",
+    "description": "A whimsical black cat watches a playful spider hanging from a web against a vibrant green backdrop.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1u7X9I5oPUWuHOjgFB2myK3q5dadhA1rQ",
     "name": "Cat and Kitten on Branch",
     "path": "Animals & Wildlife",
@@ -7018,6 +7047,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "12NXPyTx_LtT3WDETe9u41Ctp7tPLKImk",
+    "name": "Daisy Cow",
+    "path": "Animals & Wildlife",
+    "src": "https://lh3.googleusercontent.com/d/12NXPyTx_LtT3WDETe9u41Ctp7tPLKImk=w1200",
+    "view": "https://drive.google.com/file/d/12NXPyTx_LtT3WDETe9u41Ctp7tPLKImk/view?usp=drivesdk",
+    "createdTime": "2026-08-21T13:25:47.418Z",
+    "modifiedTime": "2026-08-21T13:25:34.000Z",
+    "mimeType": "image/jpeg",
+    "season": "Summer",
+    "year": 2026,
+    "tags": [
+      "Highland Cow",
+      "Floral Crown",
+      "Farm Animal",
+      "Cute",
+      "Yellow Background"
+    ],
+    "difficulty": 2,
+    "color": "Brown",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 421,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-08-21T13:25:47.418Z",
+    "description": "A charming Highland cow adorned with a floral crown against a soft yellow backdrop.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1YukLOIsQrzCia3KKGnfVW-Ky67HpkbD0",
     "name": "Dancing Whale",
     "path": "Animals & Wildlife",
@@ -7189,35 +7247,6 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:02:23.979Z",
     "description": "Two silhouetted birds perch on posts against a vibrant sunset backdrop.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC",
-    "name": "ed_cat_and_spider",
-    "path": "Animals & Wildlife",
-    "src": "https://lh3.googleusercontent.com/d/1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC=w1200",
-    "view": "https://drive.google.com/file/d/1ggUffHCy6DQ230qWsdycQNsJ8cBPW7DC/view?usp=drivesdk",
-    "createdTime": "2025-03-12T14:02:35.420Z",
-    "modifiedTime": "2025-03-12T14:00:57.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Spring",
-    "year": 2025,
-    "tags": [
-      "Black Cat",
-      "Spider",
-      "Web",
-      "Green Background",
-      "Whimsical"
-    ],
-    "difficulty": 2,
-    "color": "Green",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 642,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-03-12T14:02:35.420Z",
-    "description": "A playful black cat watches a blue spider hanging from a web against a vibrant green backdrop.",
     "aiVersion": "2025-03-20"
   },
   {
