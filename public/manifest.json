@@ -16733,35 +16733,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef",
-    "name": "cc_spookycat",
-    "path": "Cookies & Canvas",
-    "src": "https://lh3.googleusercontent.com/d/1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef=w1200",
-    "view": "https://drive.google.com/file/d/1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef/view?usp=drivesdk",
-    "createdTime": "2025-03-03T20:47:58.199Z",
-    "modifiedTime": "1980-01-01T05:00:00.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Spring",
-    "year": 2025,
-    "tags": [
-      "Black Cat",
-      "Pumpkin",
-      "Halloween",
-      "Cute Animal",
-      "Whimsical"
-    ],
-    "difficulty": 2,
-    "color": "Black",
-    "orientation": "Portrait",
-    "width": 480,
-    "height": 614,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-03-03T20:47:58.199Z",
-    "description": "A playful black cat sits beside a bright pumpkin, capturing a whimsical Halloween spirit.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1Be8BNRk9vPa5ExyXr4hc6xCPJAijSMD1",
     "name": "cc_Starry-Night-Time-traveler-150x150",
     "path": "Cookies & Canvas",
@@ -19659,6 +19630,35 @@
     "lens": "Unknown",
     "dateTime": "2025-03-03T20:46:59.897Z",
     "description": "A stylish figure in a pink dress and hat stands against a vibrant blue background adorned with whimsical hearts.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef",
+    "name": "Pumpkin Patch Kitty",
+    "path": "Cookies & Canvas",
+    "src": "https://lh3.googleusercontent.com/d/1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef=w1200",
+    "view": "https://drive.google.com/file/d/1_s7az8KvED1lAQ1clq_vROfM5d_Pjoef/view?usp=drivesdk",
+    "createdTime": "2025-03-03T20:47:58.199Z",
+    "modifiedTime": "2026-09-09T23:53:02.826Z",
+    "mimeType": "image/jpeg",
+    "season": "Spring",
+    "year": 2025,
+    "tags": [
+      "Black Cat",
+      "Pumpkin",
+      "Halloween",
+      "Cute",
+      "Cartoon"
+    ],
+    "difficulty": 2,
+    "color": "Black",
+    "orientation": "Portrait",
+    "width": 480,
+    "height": 614,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-03-03T20:47:58.199Z",
+    "description": "A whimsical black cat sits beside a bright pumpkin, capturing a playful Halloween spirit.",
     "aiVersion": "2025-03-20"
   },
   {
