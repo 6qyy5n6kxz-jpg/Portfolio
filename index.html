@@ -1,129 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photo Gallery</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Browse the Wine & Canvas Toledo painting portfolio.">
+  <title>Wine & Canvas Toledo Painting Portfolio</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Sticky Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1 class="gallery-title" id="galleryTitle">Photo Gallery</h1>
-            
-            <!-- Search Input -->
-            <input 
-                type="text" 
-                id="searchInput" 
-                class="search-input" 
-                placeholder="Search by name, tags, camera, lens..."
-            >
-        </div>
-
-        <!-- Filters -->
-        <button id="toggleFiltersBtn" class="mobile-filters-toggle" aria-expanded="false">
-            Filters
-            <span class="filters-toggle-icon">▾</span>
-        </button>
-        <div class="filters-container">
-            <div class="filter-dropdowns">
-                <div class="filter-dropdown" data-filter="season">
-                    <button class="filter-dropdown-trigger" data-target="seasonFilters">
-                        Season <span class="filter-dropdown-count" id="seasonCount">All</span>
-                    </button>
-                    <div class="filter-dropdown-panel">
-                        <div class="filter-group">
-                            <label class="filter-label">Season:</label>
-                            <div class="filter-chips" id="seasonFilters"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filter-dropdown" data-filter="difficulty">
-                    <button class="filter-dropdown-trigger" data-target="difficultyFilters">
-                        Difficulty <span class="filter-dropdown-count" id="difficultyCount">All</span>
-                    </button>
-                    <div class="filter-dropdown-panel">
-                        <div class="filter-group">
-                            <label class="filter-label">Difficulty:</label>
-                            <div class="filter-chips" id="difficultyFilters"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filter-dropdown" data-filter="orientation">
-                    <button class="filter-dropdown-trigger" data-target="orientationFilters">
-                        Orientation <span class="filter-dropdown-count" id="orientationCount">All</span>
-                    </button>
-                    <div class="filter-dropdown-panel">
-                        <div class="filter-group">
-                            <label class="filter-label">Orientation:</label>
-                            <div class="filter-chips" id="orientationFilters"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filter-dropdown" data-filter="collection">
-                    <button class="filter-dropdown-trigger" data-target="collectionFilters">
-                        Collection <span class="filter-dropdown-count" id="collectionCount">All</span>
-                    </button>
-                    <div class="filter-dropdown-panel">
-                        <div class="filter-group">
-                            <label class="filter-label">Collection:</label>
-                            <div class="filter-chips" id="collectionFilters"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="filter-dropdown" data-filter="color">
-                    <button class="filter-dropdown-trigger" data-target="colorFilters">
-                        Color <span class="filter-dropdown-count" id="colorCount">All</span>
-                    </button>
-                    <div class="filter-dropdown-panel">
-                        <div class="filter-group">
-                            <label class="filter-label">Color:</label>
-                            <div class="filter-chips" id="colorFilters"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="filters-actions">
-                <button id="clearFiltersBtn" class="clear-filters-btn">Clear All</button>
-                <button id="themeToggleBtn" class="theme-toggle-btn" aria-pressed="false">Light mode</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Loading Indicator -->
-    <div id="loadingIndicator" class="loading-indicator">
-        <div class="spinner"></div>
-        <p>Loading gallery...</p>
+  <header class="site-header">
+    <div class="shell hero">
+      <div>
+        <p class="eyebrow">Wine & Canvas Toledo</p>
+        <h1 id="galleryTitle">Painting Portfolio</h1>
+        <p id="gallerySubtitle" class="subtitle">Find a painting you love for your next Wine & Canvas experience.</p>
+      </div>
+      <a class="home-link" href="https://wineandcanvastoledo.com">Wine & Canvas Toledo</a>
     </div>
+  </header>
 
-    <!-- Error Message -->
-    <div id="errorMessage" class="error-message"></div>
+  <main class="shell page">
+    <section class="controls" aria-label="Portfolio filters">
+      <label class="search-wrap">
+        <span>Search paintings</span>
+        <input id="searchInput" type="search" placeholder="Pumpkin, beach, flowers…" autocomplete="off">
+      </label>
+      <label>
+        <span>Season</span>
+        <select id="seasonFilter"><option value="">All seasons</option></select>
+      </label>
+      <label>
+        <span>Format</span>
+        <select id="formatFilter">
+          <option value="">All formats</option>
+          <option value="16x20">16×20 Canvas</option>
+          <option value="11x14">11×14 Canvas</option>
+          <option value="8x10">8×10 Canvas</option>
+          <option value="wine_glass">Wine Glass</option>
+          <option value="wood_pallet">Wood Pallet</option>
+          <option value="doormat">Doormat</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label class="checkbox-control">
+        <input id="blacklightFilter" type="checkbox">
+        <span>Blacklight only</span>
+      </label>
+      <button id="clearFiltersBtn" type="button" class="secondary-btn">Clear filters</button>
+    </section>
 
-    <!-- Gallery Grid -->
-    <main class="gallery-container">
-        <div class="gallery-grid" id="galleryGrid"></div>
-    </main>
+    <section class="results-heading">
+      <div>
+        <p class="eyebrow">Browse the collection</p>
+        <h2 id="resultTitle">Paintings</h2>
+      </div>
+      <p id="resultCount" class="result-count"></p>
+    </section>
 
-    <!-- Pagination -->
-    <div class="pagination-container">
-        <button id="prevBtn" class="pagination-btn" disabled>← Previous</button>
-        <span id="pageInfo" class="page-info"></span>
-        <button id="nextBtn" class="pagination-btn" disabled>Next →</button>
+    <div id="loadingIndicator" class="state-card">Loading paintings…</div>
+    <div id="errorMessage" class="state-card error" hidden></div>
+    <div id="galleryGrid" class="gallery-grid" aria-live="polite"></div>
+
+    <nav class="pagination" aria-label="Portfolio pages">
+      <button id="prevBtn" type="button" class="secondary-btn">← Previous</button>
+      <span id="pageInfo"></span>
+      <button id="nextBtn" type="button" class="secondary-btn">Next →</button>
+    </nav>
+  </main>
+
+  <dialog id="paintingDialog" class="painting-dialog">
+    <button id="dialogClose" type="button" class="dialog-close" aria-label="Close">×</button>
+    <div class="dialog-layout">
+      <img id="dialogImage" alt="">
+      <div class="dialog-copy">
+        <p class="eyebrow">Wine & Canvas Toledo</p>
+        <h2 id="dialogTitle"></h2>
+        <p id="dialogMeta" class="dialog-meta"></p>
+        <p id="dialogDescription"></p>
+        <div id="dialogTags" class="tags"></div>
+      </div>
     </div>
+  </dialog>
 
-    <!-- Image Modal (optional lightbox) -->
-    <div id="imageModal" class="modal">
-        <span class="modal-close">&times;</span>
-        <img class="modal-content" id="modalImage">
-        <div class="modal-info" id="modalInfo"></div>
+  <footer class="site-footer">
+    <div class="shell">
+      <p>Wine & Canvas Toledo · Browse, choose, and save your favorites for your next event.</p>
     </div>
+  </footer>
 
-    <!-- Load app.js as ES module -->
-    <script type="module" src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
