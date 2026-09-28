@@ -11774,6 +11774,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1nwCW8vwbSfoKZ4XU-8Rw5igUjc6Zv1pK",
+    "name": "Witches Blacklight",
+    "path": "Blacklight",
+    "src": "https://lh3.googleusercontent.com/d/1nwCW8vwbSfoKZ4XU-8Rw5igUjc6Zv1pK=w1200",
+    "view": "https://drive.google.com/file/d/1nwCW8vwbSfoKZ4XU-8Rw5igUjc6Zv1pK/view?usp=drivesdk",
+    "createdTime": "2026-09-28T17:35:27.643Z",
+    "modifiedTime": "2026-09-28T17:35:37.885Z",
+    "mimeType": "image/png",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Witches",
+      "Mother And Child",
+      "Halloween",
+      "Glow In The Dark",
+      "Fall"
+    ],
+    "difficulty": 3,
+    "color": "Green",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 341,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-28T17:35:27.643Z",
+    "description": "A mystical scene of a witch and her child in a glowing forest, evoking a sense of enchantment and wonder.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1h-F6G-cu_80Q44aAjDeQGo6DfUX46PmS",
     "name": "1be-my-valentine-cc-ta-1-150x150",
     "path": "Cookies & Canvas",
@@ -42424,6 +42453,35 @@
     "lens": "Unknown",
     "dateTime": "2026-01-24T13:34:25.729Z",
     "description": "Whimsical wine glasses featuring colorful nutcracker designs, perfect for holiday celebrations.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1KPXAV0HUNtQu72tDUiFdAn2sJq3J_gnD",
+    "name": "October Wine Glasses",
+    "path": "Wine Glass",
+    "src": "https://lh3.googleusercontent.com/d/1KPXAV0HUNtQu72tDUiFdAn2sJq3J_gnD=w1200",
+    "view": "https://drive.google.com/file/d/1KPXAV0HUNtQu72tDUiFdAn2sJq3J_gnD/view?usp=drivesdk",
+    "createdTime": "2026-09-28T17:09:35.230Z",
+    "modifiedTime": "2026-09-28T17:10:01.918Z",
+    "mimeType": "image/jpeg",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Halloween Glasses",
+      "Pumpkin Decor",
+      "Ghost Design",
+      "Seasonal Art",
+      "Fall"
+    ],
+    "difficulty": 2,
+    "color": "Orange",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 683,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-28T17:09:35.230Z",
+    "description": "A whimsical trio of hand-painted Halloween-themed wine glasses featuring pumpkins and a ghost.",
     "aiVersion": "2025-03-20"
   },
   {
