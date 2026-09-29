@@ -17835,6 +17835,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1xRtDuHGk_BWh_cBO8jBOl3nHrfpJQ3LY",
+    "name": "Eggstra Sweet Bunny",
+    "path": "Cookies & Canvas",
+    "src": "https://lh3.googleusercontent.com/d/1xRtDuHGk_BWh_cBO8jBOl3nHrfpJQ3LY=w1200",
+    "view": "https://drive.google.com/file/d/1xRtDuHGk_BWh_cBO8jBOl3nHrfpJQ3LY/view?usp=drivesdk",
+    "createdTime": "2026-09-29T11:46:19.132Z",
+    "modifiedTime": "2026-09-29T12:54:20.214Z",
+    "mimeType": "image/png",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Easter Bunny",
+      "Colorful Eggs",
+      "Spring Theme",
+      "Cute Illustration",
+      "Fall"
+    ],
+    "difficulty": 2,
+    "color": "Yellow",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 768,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-29T11:46:19.132Z",
+    "description": "A cheerful Easter bunny surrounded by vibrant, decorated eggs against a bright yellow background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "16F3IZ9bcoRJg8ouzlkZKdcTaj5MyYSSv",
     "name": "Exploring-Mermaid-cc-AS-1-150x150",
     "path": "Cookies & Canvas",
@@ -24357,6 +24386,35 @@
     "lens": "Unknown",
     "dateTime": "2025-02-09T21:03:14.732Z",
     "description": "A serene tropical scene featuring a palm tree and vibrant hibiscus flowers by the ocean.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "19T51n6nIAGDPyWcTHCScMt371mN9p6_T",
+    "name": "He is Risen",
+    "path": "Miscellaneous",
+    "src": "https://lh3.googleusercontent.com/d/19T51n6nIAGDPyWcTHCScMt371mN9p6_T=w1200",
+    "view": "https://drive.google.com/file/d/19T51n6nIAGDPyWcTHCScMt371mN9p6_T/view?usp=drivesdk",
+    "createdTime": "2026-09-29T11:45:15.505Z",
+    "modifiedTime": "2026-09-29T11:45:34.276Z",
+    "mimeType": "image/jpeg",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Cross",
+      "Sunrise",
+      "Flowers",
+      "Hill",
+      "Spiritual"
+    ],
+    "difficulty": 3,
+    "color": "Yellow",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 768,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-29T11:45:15.505Z",
+    "description": "A serene cross stands atop a hill, illuminated by a radiant sunrise and surrounded by blooming flowers.",
     "aiVersion": "2025-03-20"
   },
   {
