@@ -9338,6 +9338,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1XRA5z1njPmhbdHoUBY58SC9AxfuQKOaM",
+    "name": "Cheers in Color",
+    "path": "Beverage & Food Inspired",
+    "src": "https://lh3.googleusercontent.com/d/1XRA5z1njPmhbdHoUBY58SC9AxfuQKOaM=w1200",
+    "view": "https://drive.google.com/file/d/1XRA5z1njPmhbdHoUBY58SC9AxfuQKOaM/view?usp=drivesdk",
+    "createdTime": "2026-09-29T01:26:07.017Z",
+    "modifiedTime": "2026-09-29T01:26:19.594Z",
+    "mimeType": "image/png",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Wine Glasses",
+      "Colorful Splashes",
+      "Abstract Art",
+      "Celebration",
+      "Fall"
+    ],
+    "difficulty": 3,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 341,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-29T01:26:07.017Z",
+    "description": "A vibrant depiction of wine glasses with colorful splashes, evoking a festive atmosphere.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1Xwhtrh6lSTs-twptcAHLR1CDfJyqpMk7",
     "name": "Cheers in Motion",
     "path": "Beverage & Food Inspired",
@@ -11713,6 +11742,35 @@
     "lens": "Unknown",
     "dateTime": "2026-02-16T16:01:44.216Z",
     "description": "A delicate arrangement of white blossoms in a glass jar against a stark black background.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1_gP81_wsxOzvDqYdcRP_okycgD301g0A",
+    "name": "Cosmic Sea Turtle",
+    "path": "Blacklight",
+    "src": "https://lh3.googleusercontent.com/d/1_gP81_wsxOzvDqYdcRP_okycgD301g0A=w1200",
+    "view": "https://drive.google.com/file/d/1_gP81_wsxOzvDqYdcRP_okycgD301g0A/view?usp=drivesdk",
+    "createdTime": "2026-09-29T01:24:31.133Z",
+    "modifiedTime": "2026-09-29T01:24:44.191Z",
+    "mimeType": "image/jpeg",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Sea Turtle",
+      "Coral Reef",
+      "Underwater Scene",
+      "Colorful Fish",
+      "Fall"
+    ],
+    "difficulty": 4,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 410,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-09-29T01:24:31.133Z",
+    "description": "A vibrant sea turtle glides through a colorful underwater landscape filled with coral and bubbles.",
     "aiVersion": "2025-03-20"
   },
   {
