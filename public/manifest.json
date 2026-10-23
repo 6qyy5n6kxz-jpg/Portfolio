@@ -11745,6 +11745,35 @@
     "aiVersion": "2025-03-20"
   },
   {
+    "id": "1c60pqUM8-evKKazoehK6mqf94SEqDJpA",
+    "name": "Blacklight Glow in the Snowy Forest",
+    "path": "Blacklight",
+    "src": "https://lh3.googleusercontent.com/d/1c60pqUM8-evKKazoehK6mqf94SEqDJpA=w1200",
+    "view": "https://drive.google.com/file/d/1c60pqUM8-evKKazoehK6mqf94SEqDJpA/view?usp=drivesdk",
+    "createdTime": "2026-10-23T19:21:17.589Z",
+    "modifiedTime": "2026-10-23T19:21:33.424Z",
+    "mimeType": "image/webp",
+    "season": "Fall",
+    "year": 2026,
+    "tags": [
+      "Winter Wonderland",
+      "Colorful Trees",
+      "Night Sky",
+      "Snowfall",
+      "Abstract"
+    ],
+    "difficulty": 4,
+    "color": "Blue",
+    "orientation": "Landscape",
+    "width": 512,
+    "height": 406,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2026-10-23T19:21:17.589Z",
+    "description": "A vibrant winter scene featuring a glowing tree amidst a colorful, snowy forest under a starry night sky.",
+    "aiVersion": "2025-03-20"
+  },
+  {
     "id": "1_gP81_wsxOzvDqYdcRP_okycgD301g0A",
     "name": "Cosmic Sea Turtle",
     "path": "Blacklight",
@@ -17426,35 +17455,6 @@
     "lens": "Unknown",
     "dateTime": "2018:04:10 11:48:09",
     "description": "A charming vintage trailer set against a serene outdoor backdrop, evoking a sense of adventure and nostalgia.",
-    "aiVersion": "2025-03-20"
-  },
-  {
-    "id": "18Nh1yggyKBSbcMVbuTbLjbFxPAR9p1sc",
-    "name": "CNC_FEB_Jellyfish_ORIGINAL_SDhyneSowles-scaled-150x150",
-    "path": "Cookies & Canvas",
-    "src": "https://lh3.googleusercontent.com/d/18Nh1yggyKBSbcMVbuTbLjbFxPAR9p1sc=w1200",
-    "view": "https://drive.google.com/file/d/18Nh1yggyKBSbcMVbuTbLjbFxPAR9p1sc/view?usp=drivesdk",
-    "createdTime": "2025-03-03T20:45:57.470Z",
-    "modifiedTime": "1980-01-01T05:00:00.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2017,
-    "tags": [
-      "Jellyfish",
-      "Underwater",
-      "Ocean Life",
-      "Blue Background",
-      "Bubbles"
-    ],
-    "difficulty": 2,
-    "color": "Blue",
-    "orientation": "Portrait",
-    "width": 150,
-    "height": 150,
-    "camera": "Nexus 5X",
-    "lens": "Unknown",
-    "dateTime": "2017:01:10 22:30:34",
-    "description": "A serene jellyfish gracefully floats through a vibrant blue ocean, surrounded by soft bubbles.",
     "aiVersion": "2025-03-20"
   },
   {
