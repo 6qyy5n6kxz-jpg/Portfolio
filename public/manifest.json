@@ -36714,35 +36714,6 @@
     "aiVersion": "2025-03-20"
   },
   {
-    "id": "1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0",
-    "name": "Christmas Tree_DateNight_LM",
-    "path": "Seasonal & Holiday Themes",
-    "src": "https://lh3.googleusercontent.com/d/1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0=w1200",
-    "view": "https://drive.google.com/file/d/1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0/view?usp=drivesdk",
-    "createdTime": "2025-02-09T20:59:42.819Z",
-    "modifiedTime": "2025-02-09T22:24:30.000Z",
-    "mimeType": "image/jpeg",
-    "season": "Winter",
-    "year": 2025,
-    "tags": [
-      "Christmas Tree",
-      "Ornaments",
-      "Starry Night",
-      "Holiday Decor",
-      "Winter"
-    ],
-    "difficulty": 2,
-    "color": "Green",
-    "orientation": "Portrait",
-    "width": 512,
-    "height": 1319,
-    "camera": "Unknown",
-    "lens": "Unknown",
-    "dateTime": "2025-02-09T20:59:42.819Z",
-    "description": "A festive Christmas tree adorned with colorful ornaments against a starry sky backdrop.",
-    "aiVersion": "2025-03-20"
-  },
-  {
     "id": "1Pi_cNq3Dj_06TrWCL2eYIJdDWojyWCfI",
     "name": "Cookies boo pumpkins BL",
     "path": "Seasonal & Holiday Themes",
@@ -36914,6 +36885,35 @@
     "lens": "Unknown",
     "dateTime": "2014:09:16 20:29:19",
     "description": "A serene sunset view over a tranquil lake with vibrant autumn leaves framing the scene.",
+    "aiVersion": "2025-03-20"
+  },
+  {
+    "id": "1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0",
+    "name": "Festive Christmas Tree Date Night",
+    "path": "Seasonal & Holiday Themes",
+    "src": "https://lh3.googleusercontent.com/d/1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0=w1200",
+    "view": "https://drive.google.com/file/d/1cAJEylV0DvqtUfexd1zcvQ9_jV7WO0w0/view?usp=drivesdk",
+    "createdTime": "2025-02-09T20:59:42.819Z",
+    "modifiedTime": "2026-10-29T12:29:47.115Z",
+    "mimeType": "image/jpeg",
+    "season": "Winter",
+    "year": 2025,
+    "tags": [
+      "Christmas Tree",
+      "Ornaments",
+      "Starry Night",
+      "Holiday Decor",
+      "Winter"
+    ],
+    "difficulty": 2,
+    "color": "Green",
+    "orientation": "Portrait",
+    "width": 512,
+    "height": 1319,
+    "camera": "Unknown",
+    "lens": "Unknown",
+    "dateTime": "2025-02-09T20:59:42.819Z",
+    "description": "A vibrant Christmas tree adorned with colorful ornaments against a starry night sky.",
     "aiVersion": "2025-03-20"
   },
   {
